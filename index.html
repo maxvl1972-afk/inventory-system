@@ -686,6 +686,13 @@
                     <label class="block text-sm text-slate-400 mb-1">Клиент</label>
                     <select name="client" id="order-client-select" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white" onchange="updateOrderClient()"></select>
                 </div>
+                <div id="equipment-model-container">
+                    <label class="block text-sm text-slate-400 mb-1">Модель оборудования</label>
+                    <select id="order-equipment-model" onchange="filterPartsByModel()" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                        <option value="all">Все модели</option>
+                    </select>
+                    <p class="text-xs text-slate-500 mt-1">Выберите модель чтобы отфильтровать запчасти</p>
+                </div>
                 <div id="part-select-container">
                     <label class="block text-sm text-slate-400 mb-1">Запчасть</label>
                     <select name="part" id="order-part-select" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white" onchange="updateOrderPart()"></select>
@@ -1423,9 +1430,14 @@
                         </div>
                         <div class="flex justify-between items-center pt-2 border-t border-slate-700">
                             <span class="badge badge-${color}">${texts[order.status]}</span>
-                            <button onclick="openStatusModal('${order.id}')" class="text-sm text-blue-400 hover:text-blue-300">
-                                <i class="fas fa-exchange-alt mr-1"></i>Изменить статус
-                            </button>
+                            <div class="flex gap-2">
+                                <button onclick="openStatusModal('${order.id}')" class="text-sm text-blue-400 hover:text-blue-300">
+                                    <i class="fas fa-exchange-alt mr-1"></i>Изменить статус
+                                </button>
+                                <button onclick="deleteOrder('${order.id}')" class="text-sm text-red-400 hover:text-red-300" title="Удалить заказ и вернуть на склад">
+                                    <i class="fas fa-trash-alt mr-1"></i>Удалить
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1434,6 +1446,7 @@
 
         function openOrderModal(partId) {
             populateSelects();
+            populateEquipmentModels();
 
             const typeSelect = document.getElementById('order-type-select');
             const qtyInput = document.getElementById('order-quantity');
@@ -1443,10 +1456,12 @@
             const partInfo = document.getElementById('part-info');
             const formInfo = document.getElementById('form-info');
             const partSelect = document.getElementById('order-part-select');
+            const equipmentModel = document.getElementById('order-equipment-model');
 
             if (typeSelect) typeSelect.value = 'part';
             if (qtyInput) qtyInput.value = '1';
             if (totalDiv) totalDiv.textContent = '₽0';
+            if (equipmentModel) equipmentModel.value = 'all';
 
             if (partContainer) partContainer.classList.remove('hidden');
             if (formContainer) formContainer.classList.add('hidden');
@@ -1463,31 +1478,82 @@
             openModal('order-modal');
         }
 
+        // Populate equipment models dropdown
+        function populateEquipmentModels() {
+            const select = document.getElementById('order-equipment-model');
+            if (!select) return;
+
+            // Get all unique models from equipment
+            const allModels = new Set();
+            store.equipment.vibro.forEach(e => allModels.add(e.model));
+            store.equipment.mixer.forEach(e => allModels.add(e.model));
+
+            // Also add models from parts that might not be in equipment list
+            store.parts.forEach(p => allModels.add(p.model));
+
+            let html = '<option value="all">Все модели</option>';
+            Array.from(allModels).sort().forEach(model => {
+                html += `<option value="${model}">${model}</option>`;
+            });
+            select.innerHTML = html;
+        }
+
+        // Filter parts by selected equipment model
+        function filterPartsByModel() {
+            const selectedModel = document.getElementById('order-equipment-model').value;
+            const partSelect = document.getElementById('order-part-select');
+
+            if (!partSelect) return;
+
+            let filteredParts = store.parts;
+            if (selectedModel !== 'all') {
+                filteredParts = store.parts.filter(p => p.model === selectedModel);
+            }
+
+            // Update part select options
+            let html = '';
+            if (filteredParts.length === 0) {
+                html = '<option value="">Нет запчастей для этой модели</option>';
+            } else {
+                filteredParts.forEach(p => {
+                    html += `<option value="${p.id}">${p.sku} - ${p.name} (в наличии: ${p.stock})</option>`;
+                });
+            }
+            partSelect.innerHTML = html;
+
+            // Update part info
+            updateOrderPart();
+        }
+
         function switchOrderType() {
             const type = document.getElementById('order-type-select').value;
             const partContainer = document.getElementById('part-select-container');
             const formContainer = document.getElementById('form-select-container');
             const partInfo = document.getElementById('part-info');
             const formInfo = document.getElementById('form-info');
+            const equipmentContainer = document.getElementById('equipment-model-container');
 
             if (type === 'part') {
                 partContainer.classList.remove('hidden');
                 formContainer.classList.add('hidden');
                 partInfo.classList.remove('hidden');
                 formInfo.classList.add('hidden');
-                updateOrderPart();
+                if (equipmentContainer) equipmentContainer.classList.remove('hidden');
+                filterPartsByModel();
             } else if (type === 'form') {
                 partContainer.classList.add('hidden');
                 formContainer.classList.remove('hidden');
                 partInfo.classList.add('hidden');
                 formInfo.classList.remove('hidden');
+                if (equipmentContainer) equipmentContainer.classList.add('hidden');
                 updateOrderForm();
             } else if (type === 'both') {
                 partContainer.classList.remove('hidden');
                 formContainer.classList.remove('hidden');
                 partInfo.classList.remove('hidden');
                 formInfo.classList.remove('hidden');
-                updateOrderPart();
+                if (equipmentContainer) equipmentContainer.classList.remove('hidden');
+                filterPartsByModel();
                 updateOrderForm();
             }
             calculateOrderTotal();
@@ -1626,6 +1692,61 @@
             renderOrders();
             updateDashboard();
             saveToStorage();
+        }
+
+        // Delete order and return items to stock
+        function deleteOrder(orderId) {
+            const order = store.orders.find(o => o.id === orderId);
+            if (!order) return;
+
+            // Check if order can be deleted (only new or processing orders)
+            if (order.status === 'shipped' || order.status === 'delivered') {
+                alert('Нельзя удалить отгруженный или доставленный заказ!');
+                return;
+            }
+
+            if (!confirm(`Удалить заказ ${orderId}?\n\nТовар будет возвращён на склад.\n\nКлиент: ${store.clients.find(c => c.id === order.client_id)?.name || 'Unknown'}\nКоличество: ${order.quantity} шт\nСумма: ₽${order.total?.toLocaleString() || 0}`)) {
+                return;
+            }
+
+            // Return part to stock
+            if (order.part_id) {
+                const part = store.parts.find(p => p.id === order.part_id);
+                if (part) {
+                    part.stock += order.quantity;
+                    console.log(`Returned ${order.quantity} ${part.name} to stock. New stock: ${part.stock}`);
+                }
+            }
+
+            // Return form to stock
+            if (order.form_id) {
+                const form = store.forms.find(f => f.id === order.form_id);
+                if (form) {
+                    form.quantity += order.quantity;
+                    console.log(`Returned ${order.quantity} ${form.code} to stock. New stock: ${form.quantity}`);
+                }
+            }
+
+            // Remove order from array
+            store.orders = store.orders.filter(o => o.id !== orderId);
+
+            // Update client total
+            const client = store.clients.find(c => c.id === order.client_id);
+            if (client && order.total) {
+                client.total -= order.total;
+                if (client.total < 0) client.total = 0;
+            }
+
+            // Refresh all views
+            renderOrders();
+            renderInventory();
+            renderForms();
+            renderClients();
+            updateDashboard();
+            populateSelects();
+            saveToStorage();
+
+            alert('Заказ удалён! Товар возвращён на склад.');
         }
 
         function filterOrders(filter) {
