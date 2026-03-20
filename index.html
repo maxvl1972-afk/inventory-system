@@ -400,8 +400,9 @@
                                 <thead class="bg-slate-800/50 text-slate-400">
                                     <tr>
                                         <th class="px-6 py-3">Компания</th>
-                                        <th class="px-6 py-3">Контакт</th>
-                                        <th class="px-6 py-3">Телефон</th>
+                                        <th class="px-6 py-3">Контакт / Телефон</th>
+                                        <th class="px-6 py-3">Оборудование</th>
+                                        <th class="px-6 py-3">№ заказа Китай</th>
                                         <th class="px-6 py-3">Действия</th>
                                     </tr>
                                 </thead>
@@ -652,13 +653,34 @@
                 <h3 class="text-xl font-bold text-green-400">Новый клиент</h3>
                 <button onclick="closeModal('client-modal')" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
             </div>
-            <form onsubmit="saveClient(event)" class="space-y-4">
-                <input type="text" name="name" required placeholder="Название компании" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
-                <input type="text" name="contact" required placeholder="Контактное лицо" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
-                <input type="tel" name="phone" required placeholder="Телефон" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
-                <input type="text" name="city" placeholder="Город" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
-                <input type="text" name="equipment" placeholder="Оборудование (QF800, JS1500)" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
-                <div class="flex justify-end gap-3">
+            <form id="client-form" onsubmit="saveClient(event)" class="space-y-4">
+                <input type="hidden" id="edit-client-id">
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Название компании</label>
+                    <input type="text" name="name" required placeholder="Название компании" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Контактное лицо</label>
+                    <input type="text" name="contact" required placeholder="Контактное лицо" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Телефон</label>
+                    <input type="tel" name="phone" required placeholder="Телефон" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Город</label>
+                    <input type="text" name="city" placeholder="Город" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Оборудование</label>
+                    <input type="text" name="equipment" placeholder="Оборудование (QF800, JS1500)" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Номер заказа в Китае</label>
+                    <input type="text" name="china_order_number" placeholder="Например: QF-2024-001" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                    <p class="text-xs text-slate-500 mt-1">Внутренний номер заказа у китайского поставщика</p>
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
                     <button type="button" onclick="closeModal('client-modal')" class="px-4 py-2 bg-slate-700 text-white rounded-lg">Отмена</button>
                     <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg">Сохранить</button>
                 </div>
@@ -850,8 +872,8 @@
                 ]
             },
             clients: [
-                { id: 1, name: 'СтройБетон ООО', contact: 'Иванов А.П.', phone: '+7 (495) 123-45-67', city: 'Москва', equipment: 'QF800, JS1500', last_order: '2026-03-15', total: 1250000 },
-                { id: 2, name: 'БетонПром Групп', contact: 'Петров С.В.', phone: '+7 (812) 987-65-43', city: 'СПб', equipment: 'QF1200', last_order: '2026-03-10', total: 2340000 }
+                { id: 1, name: 'СтройБетон ООО', contact: 'Иванов А.П.', phone: '+7 (495) 123-45-67', city: 'Москва', equipment: 'QF800, JS1500', china_order_number: 'QF-2024-001', last_order: '2026-03-15', total: 1250000 },
+                { id: 2, name: 'БетонПром Групп', contact: 'Петров С.В.', phone: '+7 (812) 987-65-43', city: 'СПб', equipment: 'QF1200', china_order_number: 'QF-2024-002', last_order: '2026-03-10', total: 2340000 }
             ],
             orders: []
         };
@@ -1335,50 +1357,110 @@
 
         // Clients
         function renderClients() {
-            document.getElementById('clients-table').innerHTML = store.clients.map(c => `
+            const tbody = document.getElementById('clients-table');
+            const mobile = document.getElementById('clients-mobile');
+
+            if (!tbody || !mobile) return;
+
+            tbody.innerHTML = store.clients.map(c => `
                 <tr class="table-row border-b border-slate-700/50">
                     <td class="px-6 py-3">
                         <div class="font-medium">${c.name}</div>
-                        <div class="text-xs text-slate-500">${c.city}</div>
+                        <div class="text-xs text-slate-500">${c.city || ''}</div>
                     </td>
-                    <td class="px-6 py-3">${c.contact}</td>
-                    <td class="px-6 py-3 text-slate-400">${c.phone}</td>
                     <td class="px-6 py-3">
-                        <button onclick="deleteClient(${c.id})" class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
+                        <div>${c.contact}</div>
+                        <div class="text-xs text-slate-400">${c.phone}</div>
+                    </td>
+                    <td class="px-6 py-3">
+                        <div class="text-xs text-slate-400">${c.equipment || '-'}</div>
+                    </td>
+                    <td class="px-6 py-3">
+                        <div class="text-xs font-mono text-yellow-400">${c.china_order_number || '-'}</div>
+                    </td>
+                    <td class="px-6 py-3">
+                        <button onclick="editClient(${c.id})" class="text-blue-400 hover:text-blue-300 mr-3" title="Редактировать">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteClient(${c.id})" class="text-red-400 hover:text-red-300" title="Удалить">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </td>
                 </tr>
             `).join('');
 
-            document.getElementById('clients-mobile').innerHTML = store.clients.map(c => `
+            mobile.innerHTML = store.clients.map(c => `
                 <div class="mobile-table-card">
-                    <div class="font-medium mb-1">${c.name}</div>
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="font-medium">${c.name}</div>
+                        <span class="text-xs font-mono text-yellow-400">${c.china_order_number || ''}</span>
+                    </div>
                     <div class="text-sm text-slate-400 mb-1">${c.contact}</div>
-                    <div class="text-xs text-slate-500 mb-2">${c.phone}</div>
-                    <button onclick="deleteClient(${c.id})" class="w-full py-2 rounded bg-red-600/20 text-red-400 text-sm">Удалить</button>
+                    <div class="text-xs text-slate-500 mb-1">${c.phone}</div>
+                    <div class="text-xs text-slate-500 mb-2">Оборудование: ${c.equipment || '-'}</div>
+                    <div class="flex gap-2">
+                        <button onclick="editClient(${c.id})" class="flex-1 py-2 rounded bg-blue-600/20 text-blue-400 text-sm">
+                            <i class="fas fa-edit mr-1"></i>Изм.
+                        </button>
+                        <button onclick="deleteClient(${c.id})" class="flex-1 py-2 rounded bg-red-600/20 text-red-400 text-sm">
+                            <i class="fas fa-trash mr-1"></i>Удал.
+                        </button>
+                    </div>
                 </div>
             `).join('');
+        }
+
+        // Edit client function
+        function editClient(clientId) {
+            const client = store.clients.find(c => c.id === clientId);
+            if (!client) return;
+
+            document.getElementById('edit-client-id').value = clientId;
+            const form = document.getElementById('client-form');
+            form.name.value = client.name || '';
+            form.contact.value = client.contact || '';
+            form.phone.value = client.phone || '';
+            form.city.value = client.city || '';
+            form.equipment.value = client.equipment || '';
+            form.china_order_number.value = client.china_order_number || '';
+
+            openModal('client-modal');
         }
 
         function saveClient(e) {
             e.preventDefault();
             const f = e.target;
+            const editId = parseInt(document.getElementById('edit-client-id').value);
+
             const data = {
-                id: store.clients.length ? Math.max(...store.clients.map(c => c.id)) + 1 : 1,
                 name: f.name.value,
                 contact: f.contact.value,
                 phone: f.phone.value,
                 city: f.city.value,
                 equipment: f.equipment.value,
-                last_order: '-',
-                total: 0
+                china_order_number: f.china_order_number.value || ''
             };
-            store.clients.push(data);
+
+            if (editId) {
+                const idx = store.clients.findIndex(c => c.id === editId);
+                if (idx !== -1) {
+                    store.clients[idx] = { ...store.clients[idx], ...data };
+                    alert('Клиент обновлён!');
+                }
+            } else {
+                data.id = store.clients.length ? Math.max(...store.clients.map(c => c.id)) + 1 : 1;
+                data.last_order = '-';
+                data.total = 0;
+                store.clients.push(data);
+                alert('Клиент добавлен!');
+            }
+
             closeModal('client-modal');
             renderClients();
             populateSelects();
             saveToStorage();
-            alert('Клиент добавлен!');
             f.reset();
+            document.getElementById('edit-client-id').value = '';
         }
 
         function deleteClient(id) {
