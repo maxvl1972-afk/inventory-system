@@ -680,8 +680,14 @@
                     <input type="text" name="city" placeholder="Город" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                 </div>
                 <div>
-                    <label class="block text-sm text-slate-400 mb-1">Оборудование</label>
-                    <input type="text" name="equipment" placeholder="Оборудование (QF800, JS1500)" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                    <label class="block text-sm text-slate-400 mb-1">Оборудование (кратко)</label>
+                    <input type="text" name="equipment" placeholder="QF800, JS1500" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Описание оборудования</label>
+                    <textarea name="equipment_description" placeholder="Подробное описание оборудования клиента..." 
+                        class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white h-24 resize-none"></textarea>
+                    <p class="text-xs text-slate-500 mt-1">Здесь вы можете описать детали: год выпуска, состояние, особенности, проблемы и т.д.</p>
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Номер заказа в Китае</label>
@@ -693,6 +699,62 @@
                     <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg">Сохранить</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Client Detail Modal -->
+    <div id="client-detail-modal" class="fixed inset-0 bg-black/70 modal-hidden items-center justify-center z-50 p-4">
+        <div class="glass rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="text-xl font-bold text-blue-400" id="detail-client-name">Клиент</h3>
+                    <p class="text-sm text-slate-400" id="detail-client-city">Город</p>
+                </div>
+                <button onclick="closeModal('client-detail-modal')" class="text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                    <div class="text-xs text-slate-400 mb-1">Контактное лицо</div>
+                    <div class="font-medium" id="detail-client-contact">-</div>
+                </div>
+                <div class="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                    <div class="text-xs text-slate-400 mb-1">Телефон</div>
+                    <div class="font-medium" id="detail-client-phone">-</div>
+                </div>
+                <div class="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                    <div class="text-xs text-slate-400 mb-1">Номер заказа в Китае</div>
+                    <div class="font-mono text-yellow-400" id="detail-client-china-order">-</div>
+                </div>
+                <div class="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                    <div class="text-xs text-slate-400 mb-1">Общая сумма заказов</div>
+                    <div class="font-bold text-green-400" id="detail-client-total">₽0</div>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h4 class="text-lg font-semibold mb-3"><i class="fas fa-cogs text-blue-400 mr-2"></i>Оборудование клиента</h4>
+                <div id="detail-client-equipment-list" class="space-y-3">
+                    <!-- Equipment items will be inserted here -->
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h4 class="text-lg font-semibold mb-3"><i class="fas fa-clipboard-list text-purple-400 mr-2"></i>История заказов</h4>
+                <div id="detail-client-orders-list" class="space-y-2 max-h-60 overflow-y-auto">
+                    <!-- Orders will be inserted here -->
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-700">
+                <button onclick="closeModal('client-detail-modal')" class="px-4 py-2 bg-slate-700 text-white rounded-lg">Закрыть</button>
+                <button onclick="editClientFromDetail()" class="px-4 py-2 bg-blue-600 text-white rounded-lg">
+                    <i class="fas fa-edit mr-1"></i>Редактировать
+                </button>
+                <button onclick="createOrderForClient()" class="px-4 py-2 bg-green-600 text-white rounded-lg">
+                    <i class="fas fa-plus mr-1"></i>Новый заказ
+                </button>
+            </div>
         </div>
     </div>
 
@@ -880,8 +942,8 @@
                 ]
             },
             clients: [
-                { id: 1, name: 'СтройБетон ООО', contact: 'Иванов А.П.', phone: '+7 (495) 123-45-67', city: 'Москва', equipment: 'QF800, JS1500', china_order_number: 'QF-2024-001', last_order: '2026-03-15', total: 1250000 },
-                { id: 2, name: 'БетонПром Групп', contact: 'Петров С.В.', phone: '+7 (812) 987-65-43', city: 'СПб', equipment: 'QF1200', china_order_number: 'QF-2024-002', last_order: '2026-03-10', total: 2340000 }
+                { id: 1, name: 'СтройБетон ООО', contact: 'Иванов А.П.', phone: '+7 (495) 123-45-67', city: 'Москва', equipment: 'QF800, JS1500', equipment_description: 'Вибропресс QF800 2023 г.в., производительность 1200 цикл/час. Смеситель JS1500, объем 1500л. Оба агрегата в хорошем состоянии, требуется замена поддона на прессе.', china_order_number: 'QF-2024-001', last_order: '2026-03-15', total: 1250000 },
+                { id: 2, name: 'БетонПром Групп', contact: 'Петров С.В.', phone: '+7 (812) 987-65-43', city: 'СПб', equipment: 'QF1200', equipment_description: 'Вибропресс QF1200 2024 г.в., новый, на гарантии. Производительность 1600 цикл/час, мощность 75 кВт.', china_order_number: 'QF-2024-002', last_order: '2026-03-10', total: 2340000 }
             ],
             orders: []
         };
@@ -1448,9 +1510,9 @@
             if (!tbody || !mobile) return;
 
             tbody.innerHTML = store.clients.map(c => `
-                <tr class="table-row border-b border-slate-700/50">
+                <tr class="table-row border-b border-slate-700/50 cursor-pointer hover:bg-slate-700/30" onclick="showClientDetail(${c.id})">
                     <td class="px-6 py-3">
-                        <div class="font-medium">${c.name}</div>
+                        <div class="font-medium text-blue-400">${c.name}</div>
                         <div class="text-xs text-slate-500">${c.city || ''}</div>
                     </td>
                     <td class="px-6 py-3">
@@ -1463,7 +1525,7 @@
                     <td class="px-6 py-3">
                         <div class="text-xs font-mono text-yellow-400">${c.china_order_number || '-'}</div>
                     </td>
-                    <td class="px-6 py-3">
+                    <td class="px-6 py-3" onclick="event.stopPropagation()">
                         <button onclick="editClient(${c.id})" class="text-blue-400 hover:text-blue-300 mr-3" title="Редактировать">
                             <i class="fas fa-edit"></i>
                         </button>
@@ -1475,15 +1537,15 @@
             `).join('');
 
             mobile.innerHTML = store.clients.map(c => `
-                <div class="mobile-table-card">
+                <div class="mobile-table-card cursor-pointer" onclick="showClientDetail(${c.id})">
                     <div class="flex justify-between items-start mb-2">
-                        <div class="font-medium">${c.name}</div>
+                        <div class="font-medium text-blue-400">${c.name}</div>
                         <span class="text-xs font-mono text-yellow-400">${c.china_order_number || ''}</span>
                     </div>
                     <div class="text-sm text-slate-400 mb-1">${c.contact}</div>
                     <div class="text-xs text-slate-500 mb-1">${c.phone}</div>
                     <div class="text-xs text-slate-500 mb-2">Оборудование: ${c.equipment || '-'}</div>
-                    <div class="flex gap-2">
+                    <div class="flex gap-2" onclick="event.stopPropagation()">
                         <button onclick="editClient(${c.id})" class="flex-1 py-2 rounded bg-blue-600/20 text-blue-400 text-sm">
                             <i class="fas fa-edit mr-1"></i>Изм.
                         </button>
@@ -1493,6 +1555,107 @@
                     </div>
                 </div>
             `).join('');
+        }
+
+        // Show client detail modal
+        let currentDetailClientId = null;
+
+        function showClientDetail(clientId) {
+            const client = store.clients.find(c => c.id === clientId);
+            if (!client) return;
+
+            currentDetailClientId = clientId;
+
+            // Fill basic info
+            document.getElementById('detail-client-name').textContent = client.name;
+            document.getElementById('detail-client-city').textContent = client.city || 'Город не указан';
+            document.getElementById('detail-client-contact').textContent = client.contact || '-';
+            document.getElementById('detail-client-phone').textContent = client.phone || '-';
+            document.getElementById('detail-client-china-order').textContent = client.china_order_number || '-';
+            document.getElementById('detail-client-total').textContent = '₽' + (client.total || 0).toLocaleString();
+
+            // Display equipment description (user-filled)
+            const equipmentList = document.getElementById('detail-client-equipment-list');
+            equipmentList.innerHTML = '';
+
+            // Show short equipment list
+            if (client.equipment) {
+                const equipmentCodes = client.equipment.split(/[,;]/).map(e => e.trim()).filter(e => e);
+                if (equipmentCodes.length > 0) {
+                    equipmentList.innerHTML += `
+                        <div class="mb-3">
+                            <div class="text-xs text-slate-400 mb-2">Список оборудования:</div>
+                            <div class="flex flex-wrap gap-2">
+                                ${equipmentCodes.map(code => `
+                                    <span class="px-2 py-1 rounded bg-blue-500/20 text-blue-400 text-xs">${code}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            // Show user description
+            if (client.equipment_description) {
+                equipmentList.innerHTML += `
+                    <div class="bg-slate-800/30 rounded-lg p-4 border border-slate-700">
+                        <div class="text-xs text-slate-400 mb-2"><i class="fas fa-align-left mr-1"></i>Описание оборудования:</div>
+                        <div class="text-sm text-slate-200 whitespace-pre-wrap">${client.equipment_description}</div>
+                    </div>
+                `;
+            } else {
+                equipmentList.innerHTML += '<div class="text-slate-500 text-center py-4">Описание оборудования не заполнено</div>';
+            }
+
+            // Show client orders
+            const ordersList = document.getElementById('detail-client-orders-list');
+            const clientOrders = store.orders.filter(o => o.client_id === clientId).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (clientOrders.length > 0) {
+                ordersList.innerHTML = clientOrders.map(order => {
+                    const part = store.parts.find(p => p.id === order.part_id);
+                    const form = store.forms.find(f => f.id === order.form_id);
+                    const itemName = part ? part.name : (form ? form.code : 'Unknown');
+                    const statusColors = { new: 'blue', processing: 'yellow', shipped: 'purple', delivered: 'green' };
+                    const statusText = { new: 'Новый', processing: 'В работе', shipped: 'Отгружен', delivered: 'Доставлен' };
+
+                    return `
+                        <div class="flex justify-between items-center p-2 rounded bg-slate-800/30 border border-slate-700 text-sm">
+                            <div>
+                                <div class="font-medium">${itemName}</div>
+                                <div class="text-xs text-slate-400">${order.date} • ${order.quantity} шт</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-bold">₽${(order.total || 0).toLocaleString()}</div>
+                                <span class="text-xs badge badge-${statusColors[order.status]}">${statusText[order.status]}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                ordersList.innerHTML = '<div class="text-slate-500 text-center py-4">Нет заказов</div>';
+            }
+
+            openModal('client-detail-modal');
+        }
+
+        // Edit client from detail modal
+        function editClientFromDetail() {
+            closeModal('client-detail-modal');
+            if (currentDetailClientId) {
+                editClient(currentDetailClientId);
+            }
+        }
+
+        // Create order for this client
+        function createOrderForClient() {
+            closeModal('client-detail-modal');
+            if (currentDetailClientId) {
+                // Set this client in order form
+                populateSelects();
+                document.getElementById('order-client-select').value = currentDetailClientId;
+                openOrderModal();
+            }
         }
 
         // Edit client function
@@ -1507,6 +1670,7 @@
             form.phone.value = client.phone || '';
             form.city.value = client.city || '';
             form.equipment.value = client.equipment || '';
+            form.equipment_description.value = client.equipment_description || '';
             form.china_order_number.value = client.china_order_number || '';
 
             openModal('client-modal');
@@ -1523,6 +1687,7 @@
                 phone: f.phone.value,
                 city: f.city.value,
                 equipment: f.equipment.value,
+                equipment_description: f.equipment_description.value || '',
                 china_order_number: f.china_order_number.value || ''
             };
 
