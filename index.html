@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -25,7 +26,6 @@
         .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; }
         .badge-info { background: rgba(96, 165, 250, 0.2); color: #60a5fa; }
         
-        /* Mobile optimizations */
         @media (max-width: 768px) {
             .mobile-hidden { display: none !important; }
             .mobile-full { width: 100% !important; }
@@ -69,14 +69,10 @@
             .mobile-chart { height: 200px !important; }
         }
         
-        /* Touch optimizations */
         .touch-target { min-height: 44px; min-width: 44px; }
         button, a, input, select { touch-action: manipulation; }
-        
-        /* Prevent horizontal scroll */
         body { overflow-x: hidden; }
         
-        /* Safe area for notched phones */
         @supports (padding-top: env(safe-area-inset-top)) {
             .safe-area-top { padding-top: env(safe-area-inset-top); }
             .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
@@ -141,7 +137,7 @@
                         <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                         <span class="text-xs text-slate-400">Система активна</span>
                     </div>
-                    <div class="text-xs text-slate-500">Обновлено: <span id="last-update">12:47</span></div>
+                    <div class="text-xs text-slate-500">Обновлено: <span id="last-update">13:05</span></div>
                 </div>
             </div>
         </aside>
@@ -327,20 +323,26 @@
                 <!-- Equipment View -->
                 <div id="view-equipment" class="hidden space-y-4 md:space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        <!-- Vibropresses Section -->
                         <div class="glass rounded-xl p-4 md:p-6">
                             <div class="flex items-center justify-between mb-4 md:mb-6">
                                 <h3 class="text-lg md:text-xl font-bold text-blue-400">Вибропрессы</h3>
-                                <button onclick="openModal('equipment-modal')" class="text-sm text-blue-400 hover:text-blue-300 touch-target">+ Добавить</button>
+                                <button onclick="openModal('vibro-modal')" class="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm touch-target">
+                                    <i class="fas fa-plus mr-1"></i> Добавить
+                                </button>
                             </div>
                             <div class="space-y-3" id="vibro-list">
                                 <!-- Equipment cards -->
                             </div>
                         </div>
                         
+                        <!-- Mixers Section -->
                         <div class="glass rounded-xl p-4 md:p-6">
                             <div class="flex items-center justify-between mb-4 md:mb-6">
                                 <h3 class="text-lg md:text-xl font-bold text-purple-400">Смесители</h3>
-                                <button onclick="openModal('equipment-modal')" class="text-sm text-purple-400 hover:text-purple-300 touch-target">+ Добавить</button>
+                                <button onclick="openModal('mixer-modal')" class="px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm touch-target">
+                                    <i class="fas fa-plus mr-1"></i> Добавить
+                                </button>
                             </div>
                             <div class="space-y-3" id="mixer-list">
                                 <!-- Equipment cards -->
@@ -369,7 +371,7 @@
                         <div class="flex justify-between items-center mb-4 md:mb-6">
                             <h3 class="text-base md:text-lg font-semibold">Клиенты</h3>
                             <button onclick="openModal('client-modal')" class="px-3 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm touch-target">
-                                <i class="fas fa-user-plus mr-1"></i><span class="hidden md:inline"> Новый</span>
+                                <i class="fas fa-user-plus mr-1"></i><span class="hidden md:inline"> Новый клиент</span>
                             </button>
                         </div>
                         
@@ -383,6 +385,7 @@
                                         <th class="px-6 py-4">Оборуд.</th>
                                         <th class="px-6 py-4">Посл. покупка</th>
                                         <th class="px-6 py-4">Объем</th>
+                                        <th class="px-6 py-4">Действия</th>
                                     </tr>
                                 </thead>
                                 <tbody id="clients-table" class="divide-y divide-slate-700/50">
@@ -430,14 +433,16 @@
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Тип</label>
-                    <select name="type" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                    <select name="type" id="part-type-select" onchange="updateModelSelect()" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
                         <option value="vibro">Вибропресс</option>
                         <option value="mixer">Смеситель</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Модель</label>
-                    <input type="text" name="model" placeholder="QF800" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                    <select name="model" id="part-model-select" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                        <!-- Options injected dynamically -->
+                    </select>
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Категория</label>
@@ -445,8 +450,8 @@
                         <option>Гидравлика</option>
                         <option>Электрика</option>
                         <option>Механика</option>
-                        <option>Износостойкие</option>
-                        <option>Узлы</option>
+                        <option>Износостойкие детали</option>
+                        <option>Узлы и агрегаты</option>
                     </select>
                 </div>
                 <div>
@@ -469,6 +474,185 @@
                 </div>
                 <div class="md:col-span-2 flex justify-end gap-3 mt-4">
                     <button type="button" onclick="closeModal('part-modal')" class="px-4 py-3 rounded-lg bg-slate-700 text-white hover:bg-slate-600 touch-target">Отмена</button>
+                    <button type="submit" class="px-4 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-500 touch-target">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Vibropress -->
+    <div id="vibro-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="glass rounded-xl p-4 md:p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto modal-enter">
+            <div class="flex justify-between items-center mb-4 md:mb-6">
+                <h3 class="text-lg md:text-xl font-bold text-blue-400">Добавить вибропресс</h3>
+                <button onclick="closeModal('vibro-modal')" class="text-slate-400 hover:text-white touch-target p-2"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form onsubmit="saveEquipment(event, 'vibro')" class="space-y-4">
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Модель (например: QF1000)</label>
+                    <input type="text" name="model" required placeholder="QF" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Производительность (циклов/час)</label>
+                    <input type="number" name="capacity" placeholder="например: 1200" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Мощность (кВт)</label>
+                    <input type="number" name="power" placeholder="например: 45" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Год выпуска</label>
+                    <input type="number" name="year" value="2024" min="2000" max="2030" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Описание</label>
+                    <textarea name="description" rows="3" placeholder="Особенности модели..." class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target"></textarea>
+                </div>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="closeModal('vibro-modal')" class="px-4 py-3 rounded-lg bg-slate-700 text-white hover:bg-slate-600 touch-target">Отмена</button>
+                    <button type="submit" class="px-4 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-500 touch-target">Добавить вибропресс</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Mixer -->
+    <div id="mixer-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="glass rounded-xl p-4 md:p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto modal-enter">
+            <div class="flex justify-between items-center mb-4 md:mb-6">
+                <h3 class="text-lg md:text-xl font-bold text-purple-400">Добавить смеситель</h3>
+                <button onclick="closeModal('mixer-modal')" class="text-slate-400 hover:text-white touch-target p-2"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form onsubmit="saveEquipment(event, 'mixer')" class="space-y-4">
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Модель (например: JS2000)</label>
+                    <input type="text" name="model" required placeholder="JS" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-purple-500 focus:outline-none touch-target">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Объем (литров)</label>
+                    <input type="number" name="volume" placeholder="например: 2000" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-purple-500 focus:outline-none touch-target">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Производительность (м³/час)</label>
+                    <input type="number" name="capacity" placeholder="например: 100" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-purple-500 focus:outline-none touch-target">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Мощность (кВт)</label>
+                    <input type="number" name="power" placeholder="например: 37" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-purple-500 focus:outline-none touch-target">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Год выпуска</label>
+                    <input type="number" name="year" value="2024" min="2000" max="2030" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-purple-500 focus:outline-none touch-target">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Описание</label>
+                    <textarea name="description" rows="3" placeholder="Особенности модели..." class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-purple-500 focus:outline-none touch-target"></textarea>
+                </div>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="closeModal('mixer-modal')" class="px-4 py-3 rounded-lg bg-slate-700 text-white hover:bg-slate-600 touch-target">Отмена</button>
+                    <button type="submit" class="px-4 py-3 rounded-lg bg-purple-600 text-white hover:bg-purple-500 touch-target">Добавить смеситель</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Client -->
+    <div id="client-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="glass rounded-xl p-4 md:p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto modal-enter">
+            <div class="flex justify-between items-center mb-4 md:mb-6">
+                <h3 class="text-lg md:text-xl font-bold text-green-400">Новый клиент</h3>
+                <button onclick="closeModal('client-modal')" class="text-slate-400 hover:text-white touch-target p-2"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form onsubmit="saveClient(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Название компании</label>
+                    <input type="text" name="name" required placeholder="ООО Пример" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-green-500 focus:outline-none touch-target">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Контактное лицо</label>
+                    <input type="text" name="contact" required placeholder="Иванов И.И." class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-green-500 focus:outline-none touch-target">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Телефон</label>
+                    <input type="tel" name="phone" required placeholder="+7 (999) 123-45-67" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-green-500 focus:outline-none touch-target">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Email</label>
+                    <input type="email" name="email" placeholder="info@company.ru" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-green-500 focus:outline-none touch-target">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Город</label>
+                    <input type="text" name="city" placeholder="Москва" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-green-500 focus:outline-none touch-target">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Оборудование (модели через запятую)</label>
+                    <input type="text" name="equipment" placeholder="QF800, JS1500" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-green-500 focus:outline-none touch-target">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Примечания</label>
+                    <textarea name="notes" rows="3" placeholder="Дополнительная информация..." class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-green-500 focus:outline-none touch-target"></textarea>
+                </div>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="closeModal('client-modal')" class="px-4 py-3 rounded-lg bg-slate-700 text-white hover:bg-slate-600 touch-target">Отмена</button>
+                    <button type="submit" class="px-4 py-3 rounded-lg bg-green-600 text-white hover:bg-green-500 touch-target">Сохранить клиента</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Supplier -->
+    <div id="supplier-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="glass rounded-xl p-4 md:p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto modal-enter">
+            <div class="flex justify-between items-center mb-4 md:mb-6">
+                <h3 class="text-lg md:text-xl font-bold text-blue-400">Новый поставщик</h3>
+                <button onclick="closeModal('supplier-modal')" class="text-slate-400 hover:text-white touch-target p-2"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form onsubmit="saveSupplier(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Название компании</label>
+                    <input type="text" name="name" required placeholder="Company Ltd" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">Страна</label>
+                        <select name="country" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                            <option value="CN">🇨🇳 Китай</option>
+                            <option value="DE">🇩🇪 Германия</option>
+                            <option value="IT">🇮🇹 Италия</option>
+                            <option value="TR">🇹🇷 Турция</option>
+                            <option value="RU">🇷🇺 Россия</option>
+                            <option value="OTHER">Другая</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">Город</label>
+                        <input type="text" name="city" placeholder="Шанхай" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Тип поставщика</label>
+                    <select name="type" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                        <option>Основной</option>
+                        <option>Гидравлика</option>
+                        <option>Электрика</option>
+                        <option>Механика</option>
+                        <option>Износостойкие детали</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Контактное лицо</label>
+                    <input type="text" name="contact" placeholder="Имя менеджера" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Email / Телефон</label>
+                    <input type="text" name="contact_info" placeholder="sales@company.com" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Средний срок поставки (дней)</label>
+                    <input type="number" name="lead_time" required value="45" min="1" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                </div>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="closeModal('supplier-modal')" class="px-4 py-3 rounded-lg bg-slate-700 text-white hover:bg-slate-600 touch-target">Отмена</button>
                     <button type="submit" class="px-4 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-500 touch-target">Сохранить</button>
                 </div>
             </form>
@@ -512,7 +696,7 @@
     </div>
 
     <script>
-        // Data Store
+        // Data Store with Equipment Catalogs
         const store = {
             parts: [
                 { id: 1, sku: 'QF-HC-001', name: 'Гидроцилиндр пресса 200т', type: 'vibro', model: 'QF800', category: 'Гидравлика', stock: 2, min_stock: 3, supplier: 'Qunfeng China', lead_time: 60, price: 450000 },
@@ -524,6 +708,24 @@
                 { id: 7, sku: 'QF-EL-007', name: 'Датчик давления 0-400 bar', type: 'vibro', model: 'Universal', category: 'Электрика', stock: 3, min_stock: 5, supplier: 'Wika DE', lead_time: 10, price: 12000 },
                 { id: 8, sku: 'QF-MC-008', name: 'Вибромотор 3.7 кВт', type: 'vibro', model: 'QF400', category: 'Узлы', stock: 4, min_stock: 3, supplier: 'Italvibras IT', lead_time: 18, price: 65000 }
             ],
+            equipment: {
+                vibro: [
+                    { model: 'QF400', capacity: 800, power: 30, year: 2024, description: 'Компактный вибропресс для малого бизнеса' },
+                    { model: 'QF600', capacity: 1000, power: 37, year: 2024, description: 'Средняя производительность' },
+                    { model: 'QF800', capacity: 1200, power: 45, year: 2023, description: 'Популярная модель' },
+                    { model: 'QF1000', capacity: 1400, power: 55, year: 2024, description: 'Высокая производительность' },
+                    { model: 'QF1200', capacity: 1600, power: 75, year: 2024, description: 'Промышленный класс' },
+                    { model: 'QF2000', capacity: 2000, power: 110, year: 2024, description: 'Максимальная производительность' }
+                ],
+                mixer: [
+                    { model: 'JS500', volume: 500, capacity: 25, power: 18.5, year: 2024, description: 'Малый смеситель' },
+                    { model: 'JS750', volume: 750, capacity: 35, power: 30, year: 2024, description: 'Оптимальный для малого бизнеса' },
+                    { model: 'JS1000', volume: 1000, capacity: 50, power: 37, year: 2023, description: 'Стандартная модель' },
+                    { model: 'JS1500', volume: 1500, capacity: 75, power: 55, year: 2024, description: 'Высокая производительность' },
+                    { model: 'JS2000', volume: 2000, capacity: 100, power: 75, year: 2024, description: 'Промышленный смеситель' },
+                    { model: 'JS3000', volume: 3000, capacity: 150, power: 110, year: 2024, description: 'Максимальный объем' }
+                ]
+            },
             suppliers: [
                 { id: 1, name: 'Qunfeng Machinery China', country: 'CN', city: 'Цюаньчжоу', lead_time: 45, type: 'Основной', contact: 'Li Wei' },
                 { id: 2, name: 'Siemens AG', country: 'DE', city: 'Мюнхен', lead_time: 14, type: 'Электрика', contact: 'Hans Mueller' },
@@ -531,9 +733,9 @@
                 { id: 4, name: 'Italvibras', country: 'IT', city: 'Милан', lead_time: 18, type: 'Вибраторы', contact: 'Marco Rossi' }
             ],
             clients: [
-                { id: 1, name: 'СтройБетон ООО', contact: 'Иванов А.П.', phone: '+7 (495) 123-45-67', equipment: 'QF800, JS1500', last_order: '2026-03-15', total: 1250000 },
-                { id: 2, name: 'БетонПром Групп', contact: 'Петров С.В.', phone: '+7 (812) 987-65-43', equipment: 'QF1200', last_order: '2026-03-10', total: 2340000 },
-                { id: 3, name: 'ЖБИ-Комплект', contact: 'Сидоров М.А.', phone: '+7 (383) 456-78-90', equipment: 'QF600, JS1000', last_order: '2026-02-28', total: 890000 }
+                { id: 1, name: 'СтройБетон ООО', contact: 'Иванов А.П.', phone: '+7 (495) 123-45-67', email: 'info@stroibeton.ru', city: 'Москва', equipment: 'QF800, JS1500', last_order: '2026-03-15', total: 1250000 },
+                { id: 2, name: 'БетонПром Групп', contact: 'Петров С.В.', phone: '+7 (812) 987-65-43', email: 'zakaz@betonprom.ru', city: 'СПб', equipment: 'QF1200', last_order: '2026-03-10', total: 2340000 },
+                { id: 3, name: 'ЖБИ-Комплект', contact: 'Сидоров М.А.', phone: '+7 (383) 456-78-90', email: 'sales@zbi.ru', city: 'Новосибирск', equipment: 'QF600, JS1000', last_order: '2026-02-28', total: 890000 }
             ],
             orders: [
                 { id: 'ORD-2026-001', part_id: 5, quantity: 3, status: 'transit', date: '2026-02-15', eta: '2026-04-01', supplier: 'Rexroth DE' },
@@ -552,6 +754,7 @@
             renderEquipment();
             initChart();
             populateSelects();
+            updateModelSelect();
         });
 
         // Mobile Sidebar Toggle
@@ -579,6 +782,15 @@
                 orders: 'Заказы'
             };
             document.getElementById('page-title').textContent = titles[tab];
+        }
+
+        // Update model select based on type
+        function updateModelSelect() {
+            const type = document.getElementById('part-type-select').value;
+            const select = document.getElementById('part-model-select');
+            const models = store.equipment[type].map(e => e.model);
+            
+            select.innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join('');
         }
 
         // Dashboard Updates
@@ -609,11 +821,8 @@
 
         // Inventory Management
         function renderInventory(filter = 'all') {
-            // Desktop table
             const tbody = document.getElementById('inventory-table');
             tbody.innerHTML = '';
-            
-            // Mobile cards
             const mobileContainer = document.getElementById('inventory-mobile');
             mobileContainer.innerHTML = '';
             
@@ -695,6 +904,109 @@
             renderInventory(type);
         }
 
+        // Equipment Management
+        function renderEquipment() {
+            const vibroList = document.getElementById('vibro-list');
+            const mixerList = document.getElementById('mixer-list');
+            
+            // Render Vibropresses
+            vibroList.innerHTML = store.equipment.vibro.map(eq => `
+                <div class="flex items-center justify-between p-3 md:p-4 rounded-lg bg-slate-800/50 border border-slate-700 hover:border-blue-500/50 transition-colors cursor-pointer touch-target" onclick="filterByModel('${eq.model}')">
+                    <div class="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
+                        <div class="w-8 h-8 md:w-10 md:h-10 rounded bg-blue-500/20 flex items-center justify-center text-blue-400 flex-shrink-0">
+                            <i class="fas fa-industry text-sm md:text-base"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="font-medium text-sm md:text-base flex items-center gap-2">
+                                ${eq.model}
+                                <span class="text-xs text-slate-500 font-normal">${eq.year}</span>
+                            </div>
+                            <div class="text-xs text-slate-500 truncate">${eq.capacity} цикл/час • ${eq.power} кВт</div>
+                            <div class="text-xs text-slate-600 truncate">${eq.description}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 ml-2">
+                        <span class="text-xs bg-slate-700 px-2 py-1 rounded">${store.parts.filter(p => p.model === eq.model).length} запчастей</span>
+                        <i class="fas fa-chevron-right text-slate-600"></i>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Render Mixers
+            mixerList.innerHTML = store.equipment.mixer.map(eq => `
+                <div class="flex items-center justify-between p-3 md:p-4 rounded-lg bg-slate-800/50 border border-slate-700 hover:border-purple-500/50 transition-colors cursor-pointer touch-target" onclick="filterByModel('${eq.model}')">
+                    <div class="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
+                        <div class="w-8 h-8 md:w-10 md:h-10 rounded bg-purple-500/20 flex items-center justify-center text-purple-400 flex-shrink-0">
+                            <i class="fas fa-blender text-sm md:text-base"></i>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="font-medium text-sm md:text-base flex items-center gap-2">
+                                ${eq.model}
+                                <span class="text-xs text-slate-500 font-normal">${eq.year}</span>
+                            </div>
+                            <div class="text-xs text-slate-500 truncate">${eq.volume}л • ${eq.capacity} м³/ч • ${eq.power} кВт</div>
+                            <div class="text-xs text-slate-600 truncate">${eq.description}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 ml-2">
+                        <span class="text-xs bg-slate-700 px-2 py-1 rounded">${store.parts.filter(p => p.model === eq.model).length} запчастей</span>
+                        <i class="fas fa-chevron-right text-slate-600"></i>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function saveEquipment(e, type) {
+            e.preventDefault();
+            const form = e.target;
+            const newEquipment = {
+                model: form.model.value,
+                year: parseInt(form.year.value),
+                description: form.description.value
+            };
+            
+            if (type === 'vibro') {
+                newEquipment.capacity = parseInt(form.capacity.value) || 0;
+                newEquipment.power = parseInt(form.power.value) || 0;
+                store.equipment.vibro.push(newEquipment);
+                store.equipment.vibro.sort((a, b) => a.model.localeCompare(b.model));
+            } else {
+                newEquipment.volume = parseInt(form.volume.value) || 0;
+                newEquipment.capacity = parseInt(form.capacity.value) || 0;
+                newEquipment.power = parseInt(form.power.value) || 0;
+                store.equipment.mixer.push(newEquipment);
+                store.equipment.mixer.sort((a, b) => a.model.localeCompare(b.model));
+            }
+            
+            closeModal(type === 'vibro' ? 'vibro-modal' : 'mixer-modal');
+            renderEquipment();
+            updateModelSelect();
+            populateSelects();
+            
+            // Show success message
+            alert(`${type === 'vibro' ? 'Вибропресс' : 'Смеситель'} ${newEquipment.model} добавлен!`);
+            form.reset();
+        }
+
+        function filterByModel(model) {
+            switchTab('inventory');
+            renderInventory('all');
+            // Filter table to show only this model
+            const rows = document.querySelectorAll('#inventory-table tr');
+            const cards = document.querySelectorAll('#inventory-mobile > div');
+            
+            rows.forEach(row => {
+                const modelCell = row.querySelector('td:nth-child(3)');
+                if (modelCell) {
+                    row.style.display = modelCell.textContent.includes(model) ? '' : 'none';
+                }
+            });
+            
+            cards.forEach(card => {
+                card.style.display = card.textContent.includes(model) ? '' : 'none';
+            });
+        }
+
         // Suppliers
         function renderSuppliers() {
             const grid = document.getElementById('suppliers-grid');
@@ -706,14 +1018,17 @@
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-4">
                         <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-slate-700 flex items-center justify-center text-xl md:text-2xl">
-                            ${sup.country === 'CN' ? '🇨🇳' : sup.country === 'DE' ? '🇩🇪' : '🇮🇹'}
+                            ${sup.country === 'CN' ? '🇨🇳' : sup.country === 'DE' ? '🇩🇪' : sup.country === 'IT' ? '🇮🇹' : sup.country === 'TR' ? '🇹🇷' : sup.country === 'RU' ? '🇷🇺' : '🏭'}
                         </div>
-                        <span class="badge badge-info text-xs">${sup.type}</span>
+                        <div class="flex gap-2">
+                            <span class="badge badge-info text-xs">${sup.type}</span>
+                            <button onclick="deleteSupplier(${sup.id})" class="text-red-400 hover:text-red-300"><i class="fas fa-trash text-xs"></i></button>
+                        </div>
                     </div>
                     <h4 class="font-bold text-base md:text-lg mb-1">${sup.name}</h4>
-                    <p class="text-xs md:text-sm text-slate-400 mb-3 md:mb-4">${sup.city}, ${sup.country}</p>
+                    <p class="text-xs md:text-sm text-slate-400 mb-3 md:mb-4">${sup.city}${sup.country ? ', ' + sup.country : ''}</p>
                     <div class="space-y-1 md:space-y-2 text-sm">
-                        <div class="flex justify-between"><span class="text-slate-500 text-xs md:text-sm">Контакт:</span> <span class="text-xs md:text-sm">${sup.contact}</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500 text-xs md:text-sm">Контакт:</span> <span class="text-xs md:text-sm truncate ml-2">${sup.contact}</span></div>
                         <div class="flex justify-between"><span class="text-slate-500 text-xs md:text-sm">Срок:</span> <span class="text-yellow-400 text-xs md:text-sm">${sup.lead_time} дней</span></div>
                     </div>
                     <div class="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-slate-700 flex gap-2">
@@ -725,13 +1040,38 @@
             });
         }
 
+        function saveSupplier(e) {
+            e.preventDefault();
+            const form = e.target;
+            const newSupplier = {
+                id: store.suppliers.length + 1,
+                name: form.name.value,
+                country: form.country.value,
+                city: form.city.value,
+                type: form.type.value,
+                contact: form.contact.value,
+                lead_time: parseInt(form.lead_time.value)
+            };
+            store.suppliers.push(newSupplier);
+            closeModal('supplier-modal');
+            renderSuppliers();
+            populateSelects();
+            alert(`Поставщик ${newSupplier.name} добавлен!`);
+            form.reset();
+        }
+
+        function deleteSupplier(id) {
+            if (confirm('Удалить поставщика?')) {
+                store.suppliers = store.suppliers.filter(s => s.id !== id);
+                renderSuppliers();
+                populateSelects();
+            }
+        }
+
         // Clients
         function renderClients() {
-            // Desktop table
             const tbody = document.getElementById('clients-table');
             tbody.innerHTML = '';
-            
-            // Mobile cards
             const mobileContainer = document.getElementById('clients-mobile');
             mobileContainer.innerHTML = '';
             
@@ -740,7 +1080,10 @@
                 const tr = document.createElement('tr');
                 tr.className = 'table-row';
                 tr.innerHTML = `
-                    <td class="px-6 py-4"><div class="font-medium">${client.name}</div></td>
+                    <td class="px-6 py-4">
+                        <div class="font-medium">${client.name}</div>
+                        <div class="text-xs text-slate-500">${client.city || ''}</div>
+                    </td>
                     <td class="px-6 py-4">
                         <div>${client.contact}</div>
                         <div class="text-xs text-slate-500">${client.phone}</div>
@@ -748,6 +1091,9 @@
                     <td class="px-6 py-4 text-slate-400">${client.equipment}</td>
                     <td class="px-6 py-4 text-slate-400">${client.last_order}</td>
                     <td class="px-6 py-4 font-medium text-green-400">₽${client.total.toLocaleString()}</td>
+                    <td class="px-6 py-4">
+                        <button onclick="deleteClient(${client.id})" class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
+                    </td>
                 `;
                 tbody.appendChild(tr);
                 
@@ -756,7 +1102,10 @@
                 card.className = 'mobile-table-card';
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-2">
-                        <div class="font-medium">${client.name}</div>
+                        <div>
+                            <div class="font-medium">${client.name}</div>
+                            <div class="text-xs text-slate-500">${client.city || ''}</div>
+                        </div>
                         <span class="text-green-400 font-bold">₽${(client.total/1000000).toFixed(1)}M</span>
                     </div>
                     <div class="text-sm text-slate-400 mb-1">${client.contact}</div>
@@ -769,9 +1118,48 @@
                         <span class="text-slate-400">Последняя покупка:</span>
                         <span class="text-xs">${client.last_order}</span>
                     </div>
+                    <div class="flex gap-2 mt-3 pt-3 border-t border-slate-700">
+                        <button onclick="viewClient(${client.id})" class="flex-1 py-2 rounded bg-blue-600/20 text-blue-400 text-sm">Подробнее</button>
+                        <button onclick="deleteClient(${client.id})" class="px-3 py-2 rounded bg-red-600/20 text-red-400 text-sm"><i class="fas fa-trash"></i></button>
+                    </div>
                 `;
                 mobileContainer.appendChild(card);
             });
+        }
+
+        function saveClient(e) {
+            e.preventDefault();
+            const form = e.target;
+            const newClient = {
+                id: store.clients.length + 1,
+                name: form.name.value,
+                contact: form.contact.value,
+                phone: form.phone.value,
+                email: form.email.value,
+                city: form.city.value,
+                equipment: form.equipment.value,
+                last_order: new Date().toISOString().split('T')[0],
+                total: 0
+            };
+            store.clients.push(newClient);
+            closeModal('client-modal');
+            renderClients();
+            populateSelects();
+            alert(`Клиент ${newClient.name} добавлен!`);
+            form.reset();
+        }
+
+        function deleteClient(id) {
+            if (confirm('Удалить клиента?')) {
+                store.clients = store.clients.filter(c => c.id !== id);
+                renderClients();
+                populateSelects();
+            }
+        }
+
+        function viewClient(id) {
+            const client = store.clients.find(c => c.id === id);
+            alert(`Клиент: ${client.name}\nТелефон: ${client.phone}\nEmail: ${client.email || 'не указан'}\nГород: ${client.city || 'не указан'}\nОборудование: ${client.equipment}`);
         }
 
         // Orders
@@ -811,51 +1199,6 @@
                 `;
                 container.appendChild(div);
             });
-        }
-
-        // Equipment
-        function renderEquipment() {
-            const vibroList = document.getElementById('vibro-list');
-            const mixerList = document.getElementById('mixer-list');
-            
-            const vibros = ['QF400', 'QF600', 'QF800', 'QF1000', 'QF1200', 'QF2000'];
-            const mixers = ['JS500', 'JS750', 'JS1000', 'JS1500', 'JS2000', 'JS3000'];
-            
-            vibroList.innerHTML = vibros.map(model => `
-                <div class="flex items-center justify-between p-3 md:p-4 rounded-lg bg-slate-800/50 border border-slate-700 hover:border-blue-500/50 transition-colors cursor-pointer touch-target" onclick="filterByModel('${model}')">
-                    <div class="flex items-center gap-3 md:gap-4">
-                        <div class="w-8 h-8 md:w-10 md:h-10 rounded bg-blue-500/20 flex items-center justify-center text-blue-400">
-                            <i class="fas fa-industry text-sm md:text-base"></i>
-                        </div>
-                        <div>
-                            <div class="font-medium text-sm md:text-base">${model}</div>
-                            <div class="text-xs text-slate-500">${store.parts.filter(p => p.model === model).length} позиций</div>
-                        </div>
-                    </div>
-                    <i class="fas fa-chevron-right text-slate-600"></i>
-                </div>
-            `).join('');
-            
-            mixerList.innerHTML = mixers.map(model => `
-                <div class="flex items-center justify-between p-3 md:p-4 rounded-lg bg-slate-800/50 border border-slate-700 hover:border-purple-500/50 transition-colors cursor-pointer touch-target" onclick="filterByModel('${model}')">
-                    <div class="flex items-center gap-3 md:gap-4">
-                        <div class="w-8 h-8 md:w-10 md:h-10 rounded bg-purple-500/20 flex items-center justify-center text-purple-400">
-                            <i class="fas fa-blender text-sm md:text-base"></i>
-                        </div>
-                        <div>
-                            <div class="font-medium text-sm md:text-base">${model}</div>
-                            <div class="text-xs text-slate-500">${store.parts.filter(p => p.model === model).length} позиций</div>
-                        </div>
-                    </div>
-                    <i class="fas fa-chevron-right text-slate-600"></i>
-                </div>
-            `).join('');
-        }
-
-        function filterByModel(model) {
-            switchTab('inventory');
-            renderInventory('all');
-            // Additional filter logic can be added here
         }
 
         // Modal Functions
@@ -903,6 +1246,8 @@
             renderInventory();
             updateDashboard();
             populateSelects();
+            alert(`Запчасть ${newPart.name} добавлена!`);
+            form.reset();
         }
 
         function saveOrder(e) {
@@ -918,6 +1263,7 @@
                 closeModal('order-modal');
                 renderInventory();
                 updateDashboard();
+                form.reset();
             } else {
                 alert('Недостаточно запасов! Закажите у поставщика.');
             }
@@ -930,7 +1276,7 @@
         }
 
         function editPart(id) {
-            alert('Редактирование запчасти ID: ' + id);
+            alert('Функция редактирования в разработке. ID: ' + id);
         }
 
         function deletePart(id) {
@@ -1002,7 +1348,11 @@
         });
 
         function generateReport() {
-            alert('Формирование отчета...');
+            alert('Формирование отчета...\n\nВсего позиций: ' + store.parts.length + 
+                  '\nКлиентов: ' + store.clients.length + 
+                  '\nПоставщиков: ' + store.suppliers.length +
+                  '\nВибропрессов: ' + store.equipment.vibro.length +
+                  '\nСмесителей: ' + store.equipment.mixer.length);
         }
 
         // Close modals on outside click
@@ -1013,4 +1363,4 @@
         }
     </script>
 </body>
-Initial commit: inventory system
+</html>
