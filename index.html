@@ -80,6 +80,14 @@
             background: linear-gradient(135deg, rgba(234, 179, 8, 0.1), rgba(239, 68, 68, 0.1));
             border: 1px solid rgba(234, 179, 8, 0.3);
         }
+        
+        /* Modal styles - use display property directly */
+        .modal-hidden {
+            display: none !important;
+        }
+        .modal-visible {
+            display: flex !important;
+        }
     </style>
 <base target="_blank">
 </head>
@@ -388,7 +396,7 @@
     <!-- MODALS -->
 
     <!-- Currency -->
-    <div id="currency-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+    <div id="currency-modal" class="fixed inset-0 bg-black/70 modal-hidden items-center justify-center z-50 p-4">
         <div class="glass rounded-xl p-6 w-full max-w-md">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-xl font-bold text-yellow-400">Конвертер валют</h3>
@@ -419,7 +427,7 @@
     </div>
 
     <!-- Add/Edit Part -->
-    <div id="part-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+    <div id="part-modal" class="fixed inset-0 bg-black/70 modal-hidden items-center justify-center z-50 p-4">
         <div class="glass rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold" id="part-modal-title">Добавить запчасть</h3>
@@ -490,7 +498,7 @@
     </div>
 
     <!-- Edit Stock -->
-    <div id="edit-stock-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+    <div id="edit-stock-modal" class="fixed inset-0 bg-black/70 modal-hidden items-center justify-center z-50 p-4">
         <div class="glass rounded-xl p-6 w-full max-w-sm">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-bold">Изменить остаток</h3>
@@ -516,7 +524,7 @@
     </div>
 
     <!-- Add Form -->
-    <div id="form-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+    <div id="form-modal" class="fixed inset-0 bg-black/70 modal-hidden items-center justify-center z-50 p-4">
         <div class="glass rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold text-purple-400" id="form-modal-title">Добавить пресс-форму</h3>
@@ -577,7 +585,7 @@
     </div>
 
     <!-- Add Vibro -->
-    <div id="vibro-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+    <div id="vibro-modal" class="fixed inset-0 bg-black/70 modal-hidden items-center justify-center z-50 p-4">
         <div class="glass rounded-xl p-6 w-full max-w-lg">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold text-blue-400">Добавить вибропресс</h3>
@@ -598,7 +606,7 @@
     </div>
 
     <!-- Add Mixer -->
-    <div id="mixer-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+    <div id="mixer-modal" class="fixed inset-0 bg-black/70 modal-hidden items-center justify-center z-50 p-4">
         <div class="glass rounded-xl p-6 w-full max-w-lg">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold text-purple-400">Добавить смеситель</h3>
@@ -620,7 +628,7 @@
     </div>
 
     <!-- Add Client -->
-    <div id="client-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+    <div id="client-modal" class="fixed inset-0 bg-black/70 modal-hidden items-center justify-center z-50 p-4">
         <div class="glass rounded-xl p-6 w-full max-w-lg">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold text-green-400">Новый клиент</h3>
@@ -641,7 +649,7 @@
     </div>
 
     <!-- Create Order -->
-    <div id="order-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+    <div id="order-modal" class="fixed inset-0 bg-black/70 modal-hidden items-center justify-center z-50 p-4">
         <div class="glass rounded-xl p-6 w-full max-w-lg">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold text-green-400">Оформить продажу</h3>
@@ -713,7 +721,7 @@
     </div>
 
     <!-- Order Status -->
-    <div id="order-status-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+    <div id="order-status-modal" class="fixed inset-0 bg-black/70 modal-hidden items-center justify-center z-50 p-4">
         <div class="glass rounded-xl p-6 w-full max-w-md">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold">Изменить статус</h3>
@@ -788,7 +796,7 @@
             renderEquipment();
             renderClients();
             renderOrders();
-                        populateSelects();
+            populateSelects();
             updateModelSelect();
         });
 
@@ -865,28 +873,22 @@
             if (window.innerWidth < 768) toggleSidebar();
         }
 
+        // Fixed openModal function - using classList toggle with custom classes
         function openModal(id) {
             const modal = document.getElementById(id);
             if (modal) {
-                // Use replace to swap hidden with flex
-                if (modal.classList.contains('hidden')) {
-                    modal.classList.replace('hidden', 'flex');
-                } else {
-                    modal.classList.add('flex');
-                }
+                modal.classList.remove('modal-hidden');
+                modal.classList.add('modal-visible');
                 document.body.style.overflow = 'hidden';
             }
         }
 
+        // Fixed closeModal function
         function closeModal(id) {
             const modal = document.getElementById(id);
             if (modal) {
-                // Use replace to swap flex with hidden
-                if (modal.classList.contains('flex')) {
-                    modal.classList.replace('flex', 'hidden');
-                } else {
-                    modal.classList.add('hidden');
-                }
+                modal.classList.remove('modal-visible');
+                modal.classList.add('modal-hidden');
                 document.body.style.overflow = '';
             }
         }
@@ -1376,33 +1378,32 @@
                 updateOrderPart();
             }
 
-            // CRITICAL: Actually open the modal
-            openModal('order-modal');
+            // Open the modal
             openModal('order-modal');
         }
 
         function updateOrderType() {
             const type = document.getElementById('order-type-select').value;
-            const partSection = document.getElementById('part-section');
-            const formSection = document.getElementById('form-section');
+            const partContainer = document.getElementById('part-select-container');
+            const formContainer = document.getElementById('form-select-container');
             const partInfo = document.getElementById('part-info');
             const formInfo = document.getElementById('form-info');
 
             if (type === 'part') {
-                partSection.classList.remove('hidden');
-                formSection.classList.add('hidden');
+                partContainer.classList.remove('hidden');
+                formContainer.classList.add('hidden');
                 partInfo.classList.remove('hidden');
                 formInfo.classList.add('hidden');
                 updateOrderPart();
             } else if (type === 'form') {
-                partSection.classList.add('hidden');
-                formSection.classList.remove('hidden');
+                partContainer.classList.add('hidden');
+                formContainer.classList.remove('hidden');
                 partInfo.classList.add('hidden');
                 formInfo.classList.remove('hidden');
                 updateOrderForm();
             } else if (type === 'both') {
-                partSection.classList.remove('hidden');
-                formSection.classList.remove('hidden');
+                partContainer.classList.remove('hidden');
+                formContainer.classList.remove('hidden');
                 partInfo.classList.remove('hidden');
                 formInfo.classList.remove('hidden');
                 updateOrderPart();
@@ -1485,88 +1486,6 @@
             calculateOrderTotal();
         }
 
-        function updateOrderForm() {
-            const formId = parseInt(document.getElementById('order-form-select').value);
-            const form = store.forms.find(f => f.id === formId);
-            if (form) {
-                document.getElementById('order-form-available').textContent = form.quantity + ' шт';
-                document.getElementById('order-form-price').textContent = '₽' + (form.price || 0).toLocaleString();
-                calculateOrderTotal();
-            }
-        }
-
-        function searchParts(query) {
-            query = query.toLowerCase();
-            let parts = store.parts.filter(p => 
-                p.name.toLowerCase().includes(query) || 
-                p.sku.toLowerCase().includes(query) ||
-                p.model.toLowerCase().includes(query)
-            );
-            renderFilteredInventory(parts);
-        }
-
-        function renderFilteredInventory(parts) {
-            const tbody = document.getElementById('inventory-table');
-            const mobile = document.getElementById('inventory-mobile');
-            tbody.innerHTML = '';
-            mobile.innerHTML = '';
-
-            parts.forEach(part => {
-                const status = part.stock === 0 ? 'danger' : part.stock <= part.min_stock ? 'warning' : 'success';
-                const statusText = part.stock === 0 ? 'Нет' : part.stock <= part.min_stock ? 'Низкий' : 'OK';
-
-                tbody.innerHTML += `
-                    <tr class="table-row border-b border-slate-700/50">
-                        <td class="px-3 py-3 font-mono text-blue-400 text-sm">${part.sku}</td>
-                        <td class="px-3 py-3">
-                            <div class="font-medium text-sm">${part.name}</div>
-                            <div class="text-xs text-slate-500">${part.category}</div>
-                        </td>
-                        <td class="px-3 py-3"><span class="px-2 py-1 rounded bg-slate-700 text-xs">${part.model}</span></td>
-                        <td class="px-3 py-3 text-center">
-                            <div class="flex items-center justify-center gap-2">
-                                <button onclick="quickStockChange(${part.id}, -1)" class="qty-btn qty-minus"><i class="fas fa-minus"></i></button>
-                                <span class="text-lg font-bold w-8 text-center ${part.stock <= part.min_stock ? 'text-red-400' : 'text-green-400'}">${part.stock}</span>
-                                <button onclick="quickStockChange(${part.id}, 1)" class="qty-btn qty-plus"><i class="fas fa-plus"></i></button>
-                            </div>
-                        </td>
-                        <td class="px-3 py-3 text-right text-green-400 font-bold">₽${part.price ? part.price.toLocaleString() : '0'}</td>
-                        <td class="px-3 py-3"><span class="badge badge-${status}">${statusText}</span></td>
-                        <td class="px-3 py-3">
-                            <button onclick="editPart(${part.id})" class="text-blue-400 hover:text-blue-300 mr-2"><i class="fas fa-edit"></i></button>
-                            <button onclick="openOrderModal(${part.id})" class="text-green-400 hover:text-green-300 mr-2"><i class="fas fa-shopping-cart"></i></button>
-                            <button onclick="deletePart(${part.id})" class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `;
-
-                mobile.innerHTML += `
-                    <div class="mobile-table-card">
-                        <div class="flex justify-between items-start mb-2">
-                            <div class="font-mono text-blue-400 text-sm">${part.sku}</div>
-                            <span class="badge badge-${status}">${statusText}</span>
-                        </div>
-                        <div class="font-medium mb-1">${part.name}</div>
-                        <div class="text-xs text-slate-500 mb-2">${part.category} | ${part.model}</div>
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-slate-400">Цена:</span>
-                            <span class="text-green-400 font-bold">₽${part.price ? part.price.toLocaleString() : '0'}</span>
-                        </div>
-                        <div class="flex items-center justify-between bg-slate-800/50 rounded-lg p-2 mb-2">
-                            <button onclick="quickStockChange(${part.id}, -1)" class="qty-btn qty-minus"><i class="fas fa-minus"></i></button>
-                            <span class="font-bold text-lg ${part.stock <= part.min_stock ? 'text-red-400' : 'text-green-400'}">${part.stock} шт</span>
-                            <button onclick="quickStockChange(${part.id}, 1)" class="qty-btn qty-plus"><i class="fas fa-plus"></i></button>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="editPart(${part.id})" class="flex-1 py-2 rounded bg-blue-600/20 text-blue-400 text-sm"><i class="fas fa-edit mr-1"></i>Изм.</button>
-                            <button onclick="openOrderModal(${part.id})" class="flex-1 py-2 rounded bg-green-600/20 text-green-400 text-sm"><i class="fas fa-shopping-cart mr-1"></i>Прод.</button>
-                            <button onclick="deletePart(${part.id})" class="px-3 py-2 rounded bg-red-600/20 text-red-400 text-sm"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
         function saveOrder(e) {
             e.preventDefault();
             const partId = parseInt(document.getElementById('order-part-select').value);
@@ -1612,7 +1531,7 @@
             updateDashboard();
             saveToStorage();
             
-            alert(`Заказ ${order.id} создан!\nСписано со склада: ${part.name} ${quantity} шт\nОстаток: ${part.stock} шт`);
+            alert(`Заказ ${order.id} создан!\\nСписано со склада: ${part.name} ${quantity} шт\\nОстаток: ${part.stock} шт`);
             e.target.reset();
         }
 
@@ -1723,8 +1642,6 @@
                 `;
             });
         }
-
-        
 
         window.onclick = function(e) {
             if (e.target.classList.contains('fixed') && e.target.id) {
