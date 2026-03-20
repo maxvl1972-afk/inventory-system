@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background: #0f172a; color: #e2e8f0; }
         .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
@@ -236,15 +235,9 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-                        <div class="lg:col-span-2 glass rounded-xl p-4 md:p-6">
-                            <h3 class="text-base md:text-lg font-semibold mb-4">Динамика запасов</h3>
-                            <canvas id="stockChart" height="150"></canvas>
-                        </div>
-                        <div class="glass rounded-xl p-4 md:p-6">
-                            <h3 class="text-base md:text-lg font-semibold mb-4"><i class="fas fa-bell text-yellow-400 mr-2"></i>Уведомления</h3>
-                            <div class="space-y-3" id="alerts-list"></div>
-                        </div>
+                    <div class="glass rounded-xl p-4 md:p-6">
+                        <h3 class="text-base md:text-lg font-semibold mb-4"><i class="fas fa-bell text-yellow-400 mr-2"></i>Уведомления</h3>
+                        <div class="space-y-3" id="alerts-list"></div>
                     </div>
                 </div>
 
@@ -767,7 +760,6 @@
             renderEquipment();
             renderClients();
             renderOrders();
-            initChart();
             populateSelects();
             updateModelSelect();
         });
@@ -1409,34 +1401,6 @@
         // Utils
         function filterInventory(type) {
             renderInventory(type);
-        }
-
-        function initChart() {
-            const ctx = document.getElementById('stockChart');
-            if (!ctx) return;
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн'],
-                    datasets: [{
-                        label: 'Остатки',
-                        data: [65, 59, 80, 81, 56, 55],
-                        borderColor: '#60a5fa',
-                        backgroundColor: 'rgba(96, 165, 250, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#94a3b8' } } },
-                    scales: {
-                        y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
-                        x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }
-                    }
-                }
-            });
         }
 
         window.onclick = function(e) {
