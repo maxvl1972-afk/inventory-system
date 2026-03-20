@@ -77,6 +77,27 @@
             .safe-area-top { padding-top: env(safe-area-inset-top); }
             .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
         }
+
+        .qty-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .qty-btn:hover { transform: scale(1.1); }
+        .qty-minus { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+        .qty-plus { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+        .qty-edit {
+            background: rgba(96, 165, 250, 0.2);
+            color: #60a5fa;
+            width: auto;
+            padding: 0 12px;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -137,7 +158,10 @@
                         <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                         <span class="text-xs text-slate-400">Система активна</span>
                     </div>
-                    <div class="text-xs text-slate-500">Обновлено: <span id="last-update">13:05</span></div>
+                    <div class="text-xs text-slate-500">Обновлено: <span id="last-update">13:50</span></div>
+                    <button onclick="saveToStorage()" class="mt-2 w-full py-2 bg-blue-600/30 text-blue-400 rounded text-xs hover:bg-blue-600/50">
+                        <i class="fas fa-save mr-1"></i> Сохранить данные
+                    </button>
                 </div>
             </div>
         </aside>
@@ -212,15 +236,15 @@
                         <div class="glass rounded-xl p-3 md:p-6 glass-hover mobile-stat-card">
                             <div class="flex justify-between items-start mb-2 md:mb-4">
                                 <div>
-                                    <p class="text-slate-400 text-xs md:text-sm">Продажи (мес)</p>
-                                    <h3 class="text-xl md:text-3xl font-bold text-green-400 mt-1">₽2.4M</h3>
+                                    <p class="text-slate-400 text-xs md:text-sm">Заказов сегодня</p>
+                                    <h3 class="text-xl md:text-3xl font-bold text-green-400 mt-1" id="today-orders">0</h3>
                                 </div>
                                 <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-green-500/20 flex items-center justify-center text-green-400">
-                                    <i class="fas fa-ruble-sign text-sm md:text-base"></i>
+                                    <i class="fas fa-shopping-cart text-sm md:text-base"></i>
                                 </div>
                             </div>
                             <div class="text-xs text-green-400 hidden md:flex items-center gap-1">
-                                <i class="fas fa-arrow-up"></i> +8%
+                                <i class="fas fa-check"></i> Активно
                             </div>
                         </div>
                     </div>
@@ -298,13 +322,12 @@
                             <table class="w-full text-left text-sm">
                                 <thead class="bg-slate-800/50 text-slate-400">
                                     <tr>
-                                        <th class="px-6 py-4 font-medium">Артикул</th>
-                                        <th class="px-6 py-4 font-medium">Наименование</th>
-                                        <th class="px-6 py-4 font-medium">Оборуд.</th>
-                                        <th class="px-6 py-4 font-medium">Склад</th>
-                                        <th class="px-6 py-4 font-medium">Мин.</th>
-                                        <th class="px-6 py-4 font-medium">Статус</th>
-                                        <th class="px-6 py-4 font-medium">Действия</th>
+                                        <th class="px-4 py-4 font-medium">Артикул</th>
+                                        <th class="px-4 py-4 font-medium">Наименование</th>
+                                        <th class="px-4 py-4 font-medium">Оборуд.</th>
+                                        <th class="px-4 py-4 font-medium text-center">Запас</th>
+                                        <th class="px-4 py-4 font-medium">Статус</th>
+                                        <th class="px-4 py-4 font-medium">Действия</th>
                                     </tr>
                                 </thead>
                                 <tbody id="inventory-table" class="divide-y divide-slate-700/50">
@@ -404,9 +427,20 @@
                 <!-- Orders View -->
                 <div id="view-orders" class="hidden space-y-4 md:space-y-6">
                     <div class="glass rounded-xl p-4 md:p-6">
-                        <h3 class="text-base md:text-lg font-semibold mb-4 md:mb-6">Заказы в пути</h3>
+                        <div class="flex justify-between items-center mb-4 md:mb-6">
+                            <h3 class="text-base md:text-lg font-semibold">История заказов</h3>
+                            <div class="flex gap-2">
+                                <button onclick="filterOrders('all')" class="px-3 py-1 rounded bg-blue-600 text-white text-xs">Все</button>
+                                <button onclick="filterOrders('today')" class="px-3 py-1 rounded bg-slate-700 text-slate-300 text-xs">Сегодня</button>
+                                <button onclick="filterOrders('week')" class="px-3 py-1 rounded bg-slate-700 text-slate-300 text-xs">Неделя</button>
+                            </div>
+                        </div>
                         <div class="space-y-3 md:space-y-4" id="orders-list">
                             <!-- Order tracking -->
+                        </div>
+                        <div id="orders-empty" class="hidden text-center py-8 text-slate-500">
+                            <i class="fas fa-clipboard-list text-4xl mb-2"></i>
+                            <p>Нет заказов</p>
                         </div>
                     </div>
                 </div>
@@ -477,6 +511,32 @@
                     <button type="submit" class="px-4 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-500 touch-target">Сохранить</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Stock -->
+    <div id="edit-stock-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="glass rounded-xl p-4 md:p-6 w-full max-w-sm modal-enter">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold">Изменить остаток</h3>
+                <button onclick="closeModal('edit-stock-modal')" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="mb-4">
+                <p class="text-sm text-slate-400 mb-2" id="edit-stock-name">Запчасть</p>
+                <div class="flex items-center gap-3">
+                    <button onclick="adjustStock(-1)" class="qty-btn qty-minus"><i class="fas fa-minus"></i></button>
+                    <input type="number" id="edit-stock-value" class="flex-1 px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-center text-xl font-bold" readonly>
+                    <button onclick="adjustStock(1)" class="qty-btn qty-plus"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <input type="number" id="custom-stock-input" placeholder="Ввести вручную" class="flex-1 px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-sm">
+                <button onclick="setCustomStock()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">OK</button>
+            </div>
+            <div class="flex justify-end gap-3 mt-4">
+                <button onclick="closeModal('edit-stock-modal')" class="px-4 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600">Отмена</button>
+                <button onclick="saveStockEdit()" class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-500">Сохранить</button>
+            </div>
         </div>
     </div>
 
@@ -663,7 +723,7 @@
     <div id="order-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
         <div class="glass rounded-xl p-4 md:p-6 w-full max-w-lg modal-enter">
             <div class="flex justify-between items-center mb-4 md:mb-6">
-                <h3 class="text-lg md:text-xl font-bold">Создать заказ</h3>
+                <h3 class="text-lg md:text-xl font-bold">Оформить продажу</h3>
                 <button onclick="closeModal('order-modal')" class="text-slate-400 hover:text-white touch-target p-2"><i class="fas fa-times text-xl"></i></button>
             </div>
             <form onsubmit="saveOrder(event)" class="space-y-4">
@@ -681,7 +741,17 @@
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Количество</label>
-                    <input type="number" name="quantity" min="1" value="1" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                    <input type="number" name="quantity" id="order-quantity" min="1" value="1" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                </div>
+                <div class="bg-slate-800/50 rounded-lg p-3 border border-slate-700">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-slate-400">Доступно:</span>
+                        <span class="text-green-400 font-bold" id="available-stock">-</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-400">Цена:</span>
+                        <span class="text-white" id="part-price">-</span>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Примечания</label>
@@ -689,15 +759,15 @@
                 </div>
                 <div class="flex justify-end gap-3 mt-6">
                     <button type="button" onclick="closeModal('order-modal')" class="px-4 py-3 rounded-lg bg-slate-700 text-white hover:bg-slate-600 touch-target">Отмена</button>
-                    <button type="submit" class="px-4 py-3 rounded-lg bg-green-600 text-white hover:bg-green-500 touch-target">Оформить</button>
+                    <button type="submit" class="px-4 py-3 rounded-lg bg-green-600 text-white hover:bg-green-500 touch-target">Оформить продажу</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // Data Store with Equipment Catalogs
-        const store = {
+        // Data Store with localStorage persistence
+        const defaultData = {
             parts: [
                 { id: 1, sku: 'QF-HC-001', name: 'Гидроцилиндр пресса 200т', type: 'vibro', model: 'QF800', category: 'Гидравлика', stock: 2, min_stock: 3, supplier: 'Qunfeng China', lead_time: 60, price: 450000 },
                 { id: 2, sku: 'QF-MX-002', name: 'Вал смесителя JS1500', type: 'mixer', model: 'JS1500', category: 'Механика', stock: 1, min_stock: 2, supplier: 'Qunfeng China', lead_time: 45, price: 120000 },
@@ -738,14 +808,49 @@
                 { id: 3, name: 'ЖБИ-Комплект', contact: 'Сидоров М.А.', phone: '+7 (383) 456-78-90', email: 'sales@zbi.ru', city: 'Новосибирск', equipment: 'QF600, JS1000', last_order: '2026-02-28', total: 890000 }
             ],
             orders: [
-                { id: 'ORD-2026-001', part_id: 5, quantity: 3, status: 'transit', date: '2026-02-15', eta: '2026-04-01', supplier: 'Rexroth DE' },
-                { id: 'ORD-2026-002', part_id: 1, quantity: 5, status: 'transit', date: '2026-02-20', eta: '2026-04-15', supplier: 'Qunfeng China' },
-                { id: 'ORD-2026-003', part_id: 7, quantity: 10, status: 'processing', date: '2026-03-18', eta: '2026-03-28', supplier: 'Wika DE' }
+                { id: 'ORD-2026-001', part_id: 5, quantity: 3, status: 'completed', date: '2026-02-15', eta: '2026-04-01', supplier: 'Rexroth DE', client_id: 1, total: 285000 },
+                { id: 'ORD-2026-002', part_id: 1, quantity: 2, status: 'completed', date: '2026-02-20', eta: '2026-04-15', supplier: 'Qunfeng China', client_id: 2, total: 900000 }
             ]
         };
 
+        // Load from localStorage or use defaults
+        let store = JSON.parse(JSON.stringify(defaultData));
+        
+        function loadFromStorage() {
+            try {
+                const saved = localStorage.getItem('qunfeng_inventory_data');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    // Merge with defaults to ensure structure
+                    store = { ...defaultData, ...parsed };
+                    // Ensure arrays exist
+                    if (!store.orders) store.orders = [];
+                    if (!store.parts) store.parts = defaultData.parts;
+                    if (!store.clients) store.clients = defaultData.clients;
+                    console.log('Data loaded from storage');
+                }
+            } catch (e) {
+                console.error('Error loading data:', e);
+            }
+        }
+
+        function saveToStorage() {
+            try {
+                localStorage.setItem('qunfeng_inventory_data', JSON.stringify(store));
+                alert('Данные сохранены! При обновлении страницы изменения сохранятся.');
+            } catch (e) {
+                console.error('Error saving data:', e);
+                alert('Ошибка сохранения. Возможно, память браузера заполнена.');
+            }
+        }
+
+        // Current editing state
+        let currentEditPartId = null;
+        let currentEditStock = 0;
+
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            loadFromStorage();
             updateDashboard();
             renderInventory();
             renderSuppliers();
@@ -755,6 +860,12 @@
             initChart();
             populateSelects();
             updateModelSelect();
+            setupOrderListeners();
+            
+            // Auto-save on page unload
+            window.addEventListener('beforeunload', () => {
+                saveToStorage();
+            });
         });
 
         // Mobile Sidebar Toggle
@@ -801,6 +912,11 @@
             const transit = store.orders.filter(o => o.status === 'transit').length;
             document.getElementById('transit-count').textContent = transit;
             
+            // Today's orders
+            const today = new Date().toISOString().split('T')[0];
+            const todayOrders = store.orders.filter(o => o.date === today).length;
+            document.getElementById('today-orders').textContent = todayOrders;
+            
             const alertsList = document.getElementById('alerts-list');
             alertsList.innerHTML = '';
             
@@ -813,13 +929,13 @@
                         <div class="text-sm font-medium text-red-200 truncate">${part.name}</div>
                         <div class="text-xs text-red-400">${part.stock} шт (мин: ${part.min_stock})</div>
                     </div>
-                    <button onclick="openOrderModal(${part.id})" class="px-3 py-1 rounded bg-red-600 hover:bg-red-500 text-white text-xs flex-shrink-0">Заказать</button>
+                    <button onclick="openOrderModal(${part.id})" class="px-3 py-1 rounded bg-red-600 hover:bg-red-500 text-white text-xs flex-shrink-0">Продать</button>
                 `;
                 alertsList.appendChild(div);
             });
         }
 
-        // Inventory Management
+        // Inventory Management with Stock Editing
         function renderInventory(filter = 'all') {
             const tbody = document.getElementById('inventory-table');
             tbody.innerHTML = '';
@@ -840,26 +956,25 @@
                 const tr = document.createElement('tr');
                 tr.className = 'table-row border-b border-slate-700/50';
                 tr.innerHTML = `
-                    <td class="px-6 py-4 font-mono text-blue-400">${part.sku}</td>
-                    <td class="px-6 py-4">
-                        <div class="font-medium">${part.name}</div>
+                    <td class="px-4 py-4 font-mono text-blue-400 text-sm">${part.sku}</td>
+                    <td class="px-4 py-4">
+                        <div class="font-medium text-sm">${part.name}</div>
                         <div class="text-xs text-slate-500">${part.category}</div>
                     </td>
-                    <td class="px-6 py-4"><span class="px-2 py-1 rounded bg-slate-700 text-xs">${part.model}</span></td>
-                    <td class="px-6 py-4">
-                        <div class="flex items-center gap-2">
-                            <div class="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
-                                <div class="h-full ${part.stock <= part.min_stock ? 'bg-red-500' : 'bg-green-500'} stock-bar" 
-                                     style="width: ${Math.min((part.stock / (part.min_stock * 2)) * 100, 100)}%"></div>
-                            </div>
-                            <span class="text-sm ${part.stock <= part.min_stock ? 'text-red-400 font-bold' : 'text-slate-300'}">${part.stock}</span>
+                    <td class="px-4 py-4"><span class="px-2 py-1 rounded bg-slate-700 text-xs">${part.model}</span></td>
+                    <td class="px-4 py-4 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            <button onclick="openStockEdit(${part.id})" class="qty-btn qty-minus text-xs" title="Уменьшить"><i class="fas fa-minus"></i></button>
+                            <span class="text-lg font-bold ${statusColor} w-8 text-center">${part.stock}</span>
+                            <button onclick="openStockEdit(${part.id})" class="qty-btn qty-plus text-xs" title="Увеличить"><i class="fas fa-plus"></i></button>
                         </div>
+                        <div class="text-xs text-slate-500 mt-1">мин: ${part.min_stock}</div>
                     </td>
-                    <td class="px-6 py-4 text-slate-400">${part.min_stock}</td>
-                    <td class="px-6 py-4"><span class="badge badge-${status}">${statusText}</span></td>
-                    <td class="px-6 py-4">
-                        <button onclick="editPart(${part.id})" class="text-blue-400 hover:text-blue-300 mr-3"><i class="fas fa-edit"></i></button>
-                        <button onclick="deletePart(${part.id})" class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
+                    <td class="px-4 py-4"><span class="badge badge-${status}">${statusText}</span></td>
+                    <td class="px-4 py-4">
+                        <button onclick="openStockEdit(${part.id})" class="text-blue-400 hover:text-blue-300 mr-2" title="Редактировать запас"><i class="fas fa-edit"></i></button>
+                        <button onclick="openOrderModal(${part.id})" class="text-green-400 hover:text-green-300 mr-2" title="Продать"><i class="fas fa-shopping-cart"></i></button>
+                        <button onclick="deletePart(${part.id})" class="text-red-400 hover:text-red-300" title="Удалить"><i class="fas fa-trash"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -874,9 +989,14 @@
                     </div>
                     <div class="font-medium mb-1">${part.name}</div>
                     <div class="text-xs text-slate-500 mb-3">${part.category} | ${part.model}</div>
-                    <div class="mobile-table-row">
+                    <div class="mobile-table-row items-center">
                         <span class="text-slate-400">На складе:</span>
-                        <span class="${statusColor} font-bold">${part.stock} шт</span>
+                        <div class="flex items-center gap-2">
+                            <button onclick="quickStockChange(${part.id}, -1)" class="qty-btn qty-minus text-xs"><i class="fas fa-minus"></i></button>
+                            <span class="${statusColor} font-bold text-lg w-8 text-center">${part.stock}</span>
+                            <button onclick="quickStockChange(${part.id}, 1)" class="qty-btn qty-plus text-xs"><i class="fas fa-plus"></i></button>
+                            <button onclick="openStockEdit(${part.id})" class="qty-btn qty-edit ml-2"><i class="fas fa-pen"></i></button>
+                        </div>
                     </div>
                     <div class="mobile-table-row">
                         <span class="text-slate-400">Мин. запас:</span>
@@ -887,12 +1007,71 @@
                         <span class="text-xs">${part.supplier}</span>
                     </div>
                     <div class="flex gap-2 mt-3 pt-3 border-t border-slate-700">
-                        <button onclick="editPart(${part.id})" class="flex-1 py-2 rounded bg-blue-600/20 text-blue-400 text-sm">Изменить</button>
-                        <button onclick="openOrderModal(${part.id})" class="flex-1 py-2 rounded bg-green-600/20 text-green-400 text-sm">Продать</button>
+                        <button onclick="openOrderModal(${part.id})" class="flex-1 py-2 rounded bg-green-600/20 text-green-400 text-sm"><i class="fas fa-shopping-cart mr-1"></i>Продать</button>
+                        <button onclick="deletePart(${part.id})" class="px-3 py-2 rounded bg-red-600/20 text-red-400 text-sm"><i class="fas fa-trash"></i></button>
                     </div>
                 `;
                 mobileContainer.appendChild(card);
             });
+        }
+
+        // Quick stock change
+        function quickStockChange(partId, delta) {
+            const part = store.parts.find(p => p.id === partId);
+            if (part) {
+                const newStock = part.stock + delta;
+                if (newStock >= 0) {
+                    part.stock = newStock;
+                    renderInventory();
+                    updateDashboard();
+                    saveToStorage();
+                }
+            }
+        }
+
+        // Open stock edit modal
+        function openStockEdit(partId) {
+            const part = store.parts.find(p => p.id === partId);
+            if (!part) return;
+            
+            currentEditPartId = partId;
+            currentEditStock = part.stock;
+            
+            document.getElementById('edit-stock-name').textContent = `${part.sku} - ${part.name}`;
+            document.getElementById('edit-stock-value').value = currentEditStock;
+            document.getElementById('custom-stock-input').value = '';
+            
+            openModal('edit-stock-modal');
+        }
+
+        // Adjust stock in modal
+        function adjustStock(delta) {
+            currentEditStock += delta;
+            if (currentEditStock < 0) currentEditStock = 0;
+            document.getElementById('edit-stock-value').value = currentEditStock;
+        }
+
+        // Set custom stock
+        function setCustomStock() {
+            const input = document.getElementById('custom-stock-input');
+            const value = parseInt(input.value);
+            if (!isNaN(value) && value >= 0) {
+                currentEditStock = value;
+                document.getElementById('edit-stock-value').value = currentEditStock;
+            }
+        }
+
+        // Save stock edit
+        function saveStockEdit() {
+            const part = store.parts.find(p => p.id === currentEditPartId);
+            if (part) {
+                part.stock = currentEditStock;
+                renderInventory();
+                updateDashboard();
+                saveToStorage();
+                closeModal('edit-stock-modal');
+                alert(`Остаток ${part.name} обновлен: ${part.stock} шт`);
+            }
         }
 
         function filterInventory(type) {
@@ -909,7 +1088,6 @@
             const vibroList = document.getElementById('vibro-list');
             const mixerList = document.getElementById('mixer-list');
             
-            // Render Vibropresses
             vibroList.innerHTML = store.equipment.vibro.map(eq => `
                 <div class="flex items-center justify-between p-3 md:p-4 rounded-lg bg-slate-800/50 border border-slate-700 hover:border-blue-500/50 transition-colors cursor-pointer touch-target" onclick="filterByModel('${eq.model}')">
                     <div class="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
@@ -932,7 +1110,6 @@
                 </div>
             `).join('');
             
-            // Render Mixers
             mixerList.innerHTML = store.equipment.mixer.map(eq => `
                 <div class="flex items-center justify-between p-3 md:p-4 rounded-lg bg-slate-800/50 border border-slate-700 hover:border-purple-500/50 transition-colors cursor-pointer touch-target" onclick="filterByModel('${eq.model}')">
                     <div class="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
@@ -982,8 +1159,8 @@
             renderEquipment();
             updateModelSelect();
             populateSelects();
+            saveToStorage();
             
-            // Show success message
             alert(`${type === 'vibro' ? 'Вибропресс' : 'Смеситель'} ${newEquipment.model} добавлен!`);
             form.reset();
         }
@@ -991,20 +1168,23 @@
         function filterByModel(model) {
             switchTab('inventory');
             renderInventory('all');
-            // Filter table to show only this model
-            const rows = document.querySelectorAll('#inventory-table tr');
-            const cards = document.querySelectorAll('#inventory-mobile > div');
             
-            rows.forEach(row => {
-                const modelCell = row.querySelector('td:nth-child(3)');
-                if (modelCell) {
-                    row.style.display = modelCell.textContent.includes(model) ? '' : 'none';
-                }
-            });
-            
-            cards.forEach(card => {
-                card.style.display = card.textContent.includes(model) ? '' : 'none';
-            });
+            // Filter table
+            setTimeout(() => {
+                const rows = document.querySelectorAll('#inventory-table tr');
+                const cards = document.querySelectorAll('#inventory-mobile > div');
+                
+                rows.forEach(row => {
+                    const modelCell = row.querySelector('td:nth-child(3)');
+                    if (modelCell) {
+                        row.style.display = modelCell.textContent.includes(model) ? '' : 'none';
+                    }
+                });
+                
+                cards.forEach(card => {
+                    card.style.display = card.textContent.includes(model) ? '' : 'none';
+                });
+            }, 100);
         }
 
         // Suppliers
@@ -1056,6 +1236,7 @@
             closeModal('supplier-modal');
             renderSuppliers();
             populateSelects();
+            saveToStorage();
             alert(`Поставщик ${newSupplier.name} добавлен!`);
             form.reset();
         }
@@ -1065,6 +1246,7 @@
                 store.suppliers = store.suppliers.filter(s => s.id !== id);
                 renderSuppliers();
                 populateSelects();
+                saveToStorage();
             }
         }
 
@@ -1092,6 +1274,7 @@
                     <td class="px-6 py-4 text-slate-400">${client.last_order}</td>
                     <td class="px-6 py-4 font-medium text-green-400">₽${client.total.toLocaleString()}</td>
                     <td class="px-6 py-4">
+                        <button onclick="viewClient(${client.id})" class="text-blue-400 hover:text-blue-300 mr-2"><i class="fas fa-eye"></i></button>
                         <button onclick="deleteClient(${client.id})" class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
                     </td>
                 `;
@@ -1145,6 +1328,7 @@
             closeModal('client-modal');
             renderClients();
             populateSelects();
+            saveToStorage();
             alert(`Клиент ${newClient.name} добавлен!`);
             form.reset();
         }
@@ -1154,51 +1338,83 @@
                 store.clients = store.clients.filter(c => c.id !== id);
                 renderClients();
                 populateSelects();
+                saveToStorage();
             }
         }
 
         function viewClient(id) {
             const client = store.clients.find(c => c.id === id);
-            alert(`Клиент: ${client.name}\nТелефон: ${client.phone}\nEmail: ${client.email || 'не указан'}\nГород: ${client.city || 'не указан'}\nОборудование: ${client.equipment}`);
+            alert(`Клиент: ${client.name}\nТелефон: ${client.phone}\nEmail: ${client.email || 'не указан'}\nГород: ${client.city || 'не указан'}\nОборудование: ${client.equipment}\nОбщий объем: ₽${client.total.toLocaleString()}`);
         }
 
-        // Orders
-        function renderOrders() {
+        // Orders Management
+        function renderOrders(filter = 'all') {
             const container = document.getElementById('orders-list');
+            const emptyDiv = document.getElementById('orders-empty');
             container.innerHTML = '';
             
-            store.orders.forEach(order => {
+            let orders = [...store.orders].reverse(); // Newest first
+            
+            if (filter === 'today') {
+                const today = new Date().toISOString().split('T')[0];
+                orders = orders.filter(o => o.date === today);
+            } else if (filter === 'week') {
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                orders = orders.filter(o => new Date(o.date) >= weekAgo);
+            }
+            
+            if (orders.length === 0) {
+                emptyDiv.classList.remove('hidden');
+                return;
+            } else {
+                emptyDiv.classList.add('hidden');
+            }
+            
+            orders.forEach(order => {
                 const part = store.parts.find(p => p.id === order.part_id);
-                const progress = order.status === 'transit' ? 60 : order.status === 'processing' ? 30 : 100;
+                const client = store.clients.find(c => c.id === order.client_id);
                 
                 const div = document.createElement('div');
-                div.className = 'glass rounded-lg p-3 md:p-4 border-l-4 border-blue-500';
+                div.className = 'glass rounded-lg p-3 md:p-4 border-l-4 border-green-500';
                 div.innerHTML = `
                     <div class="flex justify-between items-start mb-2 md:mb-3">
                         <div class="min-w-0 flex-1">
-                            <div class="font-bold text-base md:text-lg truncate">${order.id}</div>
-                            <div class="text-xs md:text-sm text-slate-400 truncate">${part ? part.name : 'Unknown'}</div>
+                            <div class="font-bold text-base md:text-lg text-green-400">${order.id}</div>
+                            <div class="text-xs md:text-sm text-white font-medium">${part ? part.name : 'Unknown'}</div>
+                            <div class="text-xs text-slate-500">Клиент: ${client ? client.name : 'Unknown'}</div>
                         </div>
-                        <span class="badge badge-${order.status === 'transit' ? 'warning' : 'info'} flex-shrink-0 ml-2">
-                            ${order.status === 'transit' ? 'В пути' : 'Обработка'}
-                        </span>
+                        <div class="text-right flex-shrink-0 ml-2">
+                            <div class="text-lg font-bold text-white">₽${order.total ? order.total.toLocaleString() : '-'}</div>
+                            <div class="text-xs text-slate-400">${order.quantity} шт</div>
+                        </div>
                     </div>
                     <div class="flex justify-between text-xs md:text-sm mb-2">
-                        <span class="text-slate-400">Кол-во: <span class="text-white">${order.quantity}</span></span>
-                        <span class="text-slate-400 truncate ml-2">${order.supplier}</span>
-                    </div>
-                    <div class="space-y-1">
-                        <div class="flex justify-between text-xs text-slate-500">
-                            <span>Отпр: ${order.date}</span>
-                            <span>Приб: ${order.eta}</span>
-                        </div>
-                        <div class="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
-                            <div class="h-full bg-blue-500 stock-bar" style="width: ${progress}%"></div>
-                        </div>
+                        <span class="text-slate-400">Дата: <span class="text-white">${order.date}</span></span>
+                        <span class="badge badge-success">Выполнен</span>
                     </div>
                 `;
                 container.appendChild(div);
             });
+        }
+
+        function filterOrders(filter) {
+            renderOrders(filter);
+        }
+
+        // Setup order form listeners
+        function setupOrderListeners() {
+            const partSelect = document.getElementById('part-select');
+            partSelect.addEventListener('change', updateOrderInfo);
+        }
+
+        function updateOrderInfo() {
+            const partId = parseInt(document.getElementById('part-select').value);
+            const part = store.parts.find(p => p.id === partId);
+            if (part) {
+                document.getElementById('available-stock').textContent = part.stock + ' шт';
+                document.getElementById('part-price').textContent = '₽' + part.price.toLocaleString();
+            }
         }
 
         // Modal Functions
@@ -1206,6 +1422,10 @@
             document.getElementById(id).classList.remove('hidden');
             document.getElementById(id).classList.add('flex');
             document.body.style.overflow = 'hidden';
+            
+            if (id === 'order-modal') {
+                updateOrderInfo();
+            }
         }
 
         function closeModal(id) {
@@ -1239,13 +1459,15 @@
                 stock: parseInt(form.stock.value),
                 min_stock: parseInt(form.min_stock.value),
                 supplier: form.supplier.value,
-                lead_time: parseInt(form.lead_time.value)
+                lead_time: parseInt(form.lead_time.value),
+                price: 0 // Default price
             };
             store.parts.push(newPart);
             closeModal('part-modal');
             renderInventory();
             updateDashboard();
             populateSelects();
+            saveToStorage();
             alert(`Запчасть ${newPart.name} добавлена!`);
             form.reset();
         }
@@ -1254,29 +1476,64 @@
             e.preventDefault();
             const form = e.target;
             const partId = parseInt(form.part.value);
+            const clientId = parseInt(form.client.value);
             const quantity = parseInt(form.quantity.value);
             const part = store.parts.find(p => p.id === partId);
+            const client = store.clients.find(c => c.id === clientId);
             
-            if (part.stock >= quantity) {
-                part.stock -= quantity;
-                alert(`Продажа оформлена! ${part.name}: осталось ${part.stock}`);
-                closeModal('order-modal');
-                renderInventory();
-                updateDashboard();
-                form.reset();
-            } else {
-                alert('Недостаточно запасов! Закажите у поставщика.');
+            if (!part || !client) {
+                alert('Ошибка: выберите запчасть и клиента');
+                return;
             }
+            
+            if (part.stock < quantity) {
+                alert(`Недостаточно запасов! Доступно: ${part.stock}, требуется: ${quantity}`);
+                return;
+            }
+            
+            // Update stock
+            part.stock -= quantity;
+            
+            // Create order
+            const orderId = 'ORD-' + new Date().getFullYear() + '-' + String(store.orders.length + 1).padStart(3, '0');
+            const total = quantity * (part.price || 0);
+            const newOrder = {
+                id: orderId,
+                part_id: partId,
+                client_id: clientId,
+                quantity: quantity,
+                status: 'completed',
+                date: new Date().toISOString().split('T')[0],
+                eta: '-',
+                supplier: '-',
+                total: total,
+                notes: form.notes.value
+            };
+            
+            store.orders.push(newOrder);
+            
+            // Update client
+            client.last_order = newOrder.date;
+            client.total += total;
+            
+            closeModal('order-modal');
+            renderInventory();
+            renderOrders();
+            renderClients();
+            updateDashboard();
+            saveToStorage();
+            
+            alert(`Заказ ${orderId} оформлен!\n${part.name} x${quantity}\nКлиент: ${client.name}\nСумма: ₽${total.toLocaleString()}`);
+            form.reset();
         }
 
         function openOrderModal(partId) {
             populateSelects();
-            document.getElementById('part-select').value = partId;
+            if (partId) {
+                document.getElementById('part-select').value = partId;
+                updateOrderInfo();
+            }
             openModal('order-modal');
-        }
-
-        function editPart(id) {
-            alert('Функция редактирования в разработке. ID: ' + id);
         }
 
         function deletePart(id) {
@@ -1284,6 +1541,8 @@
                 store.parts = store.parts.filter(p => p.id !== id);
                 renderInventory();
                 updateDashboard();
+                populateSelects();
+                saveToStorage();
             }
         }
 
@@ -1348,11 +1607,19 @@
         });
 
         function generateReport() {
-            alert('Формирование отчета...\n\nВсего позиций: ' + store.parts.length + 
-                  '\nКлиентов: ' + store.clients.length + 
-                  '\nПоставщиков: ' + store.suppliers.length +
-                  '\nВибропрессов: ' + store.equipment.vibro.length +
-                  '\nСмесителей: ' + store.equipment.mixer.length);
+            const today = new Date().toISOString().split('T')[0];
+            const todayOrders = store.orders.filter(o => o.date === today);
+            const todayTotal = todayOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+            
+            alert(`ОТЧЕТ ПО СИСТЕМЕ\n\n` +
+                  `Запчастей на складе: ${store.parts.length}\n` +
+                  `Клиентов: ${store.clients.length}\n` +
+                  `Поставщиков: ${store.suppliers.length}\n` +
+                  `Вибропрессов: ${store.equipment.vibro.length}\n` +
+                  `Смесителей: ${store.equipment.mixer.length}\n\n` +
+                  `Заказов сегодня (${today}): ${todayOrders.length}\n` +
+                  `Выручка сегодня: ₽${todayTotal.toLocaleString()}\n\n` +
+                  `Всего заказов: ${store.orders.length}`);
         }
 
         // Close modals on outside click
