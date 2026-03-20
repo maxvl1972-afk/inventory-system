@@ -1,8 +1,7 @@
-
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Qunfeng Service | Система мониторинга запасных частей</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -25,57 +24,133 @@
         .badge-warning { background: rgba(234, 179, 8, 0.2); color: #facc15; }
         .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; }
         .badge-info { background: rgba(96, 165, 250, 0.2); color: #60a5fa; }
+        
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .mobile-hidden { display: none !important; }
+            .mobile-full { width: 100% !important; }
+            .mobile-stack { flex-direction: column !important; }
+            .mobile-p-2 { padding: 0.5rem !important; }
+            .mobile-text-sm { font-size: 0.875rem !important; }
+            .sidebar-mobile {
+                position: fixed;
+                left: -100%;
+                top: 0;
+                width: 80%;
+                height: 100vh;
+                z-index: 50;
+                transition: left 0.3s ease;
+            }
+            .sidebar-mobile.open { left: 0; }
+            .overlay {
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.8);
+                z-index: 40;
+                display: none;
+            }
+            .overlay.show { display: block; }
+            .mobile-card {
+                padding: 1rem;
+                margin-bottom: 0.75rem;
+            }
+            .mobile-grid-1 { grid-template-columns: 1fr !important; }
+            .mobile-table-card {
+                display: block;
+                margin-bottom: 1rem;
+                padding: 1rem;
+                border-radius: 0.75rem;
+                background: rgba(30, 41, 59, 0.7);
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+            .mobile-table-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+            .mobile-table-row:last-child { border-bottom: none; }
+            .mobile-stat-card { padding: 1rem; }
+            .mobile-chart { height: 200px !important; }
+        }
+        
+        /* Touch optimizations */
+        .touch-target { min-height: 44px; min-width: 44px; }
+        button, a, input, select { touch-action: manipulation; }
+        
+        /* Prevent horizontal scroll */
+        body { overflow-x: hidden; }
+        
+        /* Safe area for notched phones */
+        @supports (padding-top: env(safe-area-inset-top)) {
+            .safe-area-top { padding-top: env(safe-area-inset-top); }
+            .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
+        }
     </style>
 </head>
-<body class="antialiased overflow-hidden">
+<body class="antialiased">
+
+    <!-- Mobile Overlay -->
+    <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
 
     <!-- App Container -->
-    <div class="flex h-screen">
+    <div class="flex h-screen flex-col md:flex-row">
         
+        <!-- Mobile Header -->
+        <header class="md:hidden h-16 glass border-b border-slate-700/50 flex items-center justify-between px-4 safe-area-top z-30">
+            <button onclick="toggleSidebar()" class="touch-target p-2 text-white">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            <h1 class="text-lg font-bold gradient-text">QUNFENG</h1>
+            <button onclick="openModal('order-modal')" class="touch-target p-2 text-blue-400">
+                <i class="fas fa-plus text-xl"></i>
+            </button>
+        </header>
+
         <!-- Sidebar -->
-        <aside class="w-64 glass flex flex-col border-r border-slate-700/50">
-            <div class="p-6 border-b border-slate-700/50">
-                <h1 class="text-2xl font-bold gradient-text">QUNFENG</h1>
-                <p class="text-xs text-slate-400 mt-1">Service Department</p>
+        <aside id="sidebar" class="sidebar-mobile md:static md:w-64 glass flex flex-col border-r border-slate-700/50 z-50">
+            <div class="p-6 border-b border-slate-700/50 flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold gradient-text">QUNFENG</h1>
+                    <p class="text-xs text-slate-400 mt-1">Service Department</p>
+                </div>
+                <button onclick="toggleSidebar()" class="md:hidden touch-target p-2 text-slate-400">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
             </div>
             
-            <nav class="flex-1 py-6 space-y-1">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-item active w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3">
-                    <i class="fas fa-chart-line w-5"></i> Дашборд
+            <nav class="flex-1 py-6 space-y-1 overflow-y-auto">
+                <button onclick="switchTab('dashboard'); if(window.innerWidth < 768) toggleSidebar()" id="nav-dashboard" class="sidebar-item active w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3 touch-target">
+                    <i class="fas fa-chart-line w-5"></i> <span>Дашборд</span>
                 </button>
-                <button onclick="switchTab('inventory')" id="nav-inventory" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3">
-                    <i class="fas fa-boxes w-5"></i> Запасные части
+                <button onclick="switchTab('inventory'); if(window.innerWidth < 768) toggleSidebar()" id="nav-inventory" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3 touch-target">
+                    <i class="fas fa-boxes w-5"></i> <span>Запчасти</span>
                 </button>
-                <button onclick="switchTab('equipment')" id="nav-equipment" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3">
-                    <i class="fas fa-cogs w-5"></i> Оборудование
+                <button onclick="switchTab('equipment'); if(window.innerWidth < 768) toggleSidebar()" id="nav-equipment" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3 touch-target">
+                    <i class="fas fa-cogs w-5"></i> <span>Оборудование</span>
                 </button>
-                <button onclick="switchTab('suppliers')" id="nav-suppliers" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3">
-                    <i class="fas fa-ship w-5"></i> Поставщики
+                <button onclick="switchTab('suppliers'); if(window.innerWidth < 768) toggleSidebar()" id="nav-suppliers" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3 touch-target">
+                    <i class="fas fa-ship w-5"></i> <span>Поставщики</span>
                 </button>
-                <button onclick="switchTab('clients')" id="nav-clients" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3">
-                    <i class="fas fa-users w-5"></i> Клиенты
+                <button onclick="switchTab('clients'); if(window.innerWidth < 768) toggleSidebar()" id="nav-clients" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3 touch-target">
+                    <i class="fas fa-users w-5"></i> <span>Клиенты</span>
                 </button>
-                <button onclick="switchTab('orders')" id="nav-orders" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3">
-                    <i class="fas fa-clipboard-list w-5"></i> Заказы
+                <button onclick="switchTab('orders'); if(window.innerWidth < 768) toggleSidebar()" id="nav-orders" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3 touch-target">
+                    <i class="fas fa-clipboard-list w-5"></i> <span>Заказы</span>
                 </button>
             </nav>
             
-            <div class="p-4 border-t border-slate-700/50">
+            <div class="p-4 border-t border-slate-700/50 safe-area-bottom">
                 <div class="glass rounded-lg p-4">
                     <div class="flex items-center gap-3 mb-2">
                         <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                         <span class="text-xs text-slate-400">Система активна</span>
                     </div>
-                    <div class="text-xs text-slate-500">Обновлено: <span id="last-update">08:25</span></div>
+                    <div class="text-xs text-slate-500">Обновлено: <span id="last-update">12:47</span></div>
                 </div>
             </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 overflow-hidden flex flex-col bg-slate-900">
+        <main class="flex-1 overflow-hidden flex flex-col bg-slate-900 h-[calc(100vh-64px)] md:h-screen">
             
-            <!-- Header -->
-            <header class="h-16 glass border-b border-slate-700/50 flex items-center justify-between px-8">
+            <!-- Desktop Header -->
+            <header class="hidden md:flex h-16 glass border-b border-slate-700/50 items-center justify-between px-8">
                 <div class="flex items-center gap-4">
                     <h2 id="page-title" class="text-xl font-semibold text-white">Обзор системы</h2>
                     <span class="px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-xs border border-blue-500/30">Tech Service</span>
@@ -91,79 +166,81 @@
             </header>
 
             <!-- Content Scroll Area -->
-            <div class="flex-1 overflow-y-auto p-8" id="content-area">
+            <div class="flex-1 overflow-y-auto p-4 md:p-8" id="content-area">
                 
                 <!-- Dashboard View -->
-                <div id="view-dashboard" class="space-y-6">
+                <div id="view-dashboard" class="space-y-4 md:space-y-6">
                     <!-- Stats Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div class="glass rounded-xl p-6 glass-hover">
-                            <div class="flex justify-between items-start mb-4">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+                        <div class="glass rounded-xl p-3 md:p-6 glass-hover mobile-stat-card">
+                            <div class="flex justify-between items-start mb-2 md:mb-4">
                                 <div>
-                                    <p class="text-slate-400 text-sm">Всего позиций</p>
-                                    <h3 class="text-3xl font-bold text-white mt-1" id="total-items">0</h3>
+                                    <p class="text-slate-400 text-xs md:text-sm">Всего позиций</p>
+                                    <h3 class="text-xl md:text-3xl font-bold text-white mt-1" id="total-items">0</h3>
                                 </div>
-                                <div class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
-                                    <i class="fas fa-cube"></i>
+                                <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
+                                    <i class="fas fa-cube text-sm md:text-base"></i>
                                 </div>
                             </div>
-                            <div class="text-xs text-green-400 flex items-center gap-1">
-                                <i class="fas fa-arrow-up"></i> +12% к прошлому месяцу
+                            <div class="text-xs text-green-400 hidden md:flex items-center gap-1">
+                                <i class="fas fa-arrow-up"></i> +12%
                             </div>
                         </div>
 
-                        <div class="glass rounded-xl p-6 glass-hover">
-                            <div class="flex justify-between items-start mb-4">
+                        <div class="glass rounded-xl p-3 md:p-6 glass-hover mobile-stat-card">
+                            <div class="flex justify-between items-start mb-2 md:mb-4">
                                 <div>
-                                    <p class="text-slate-400 text-sm">Критический запас</p>
-                                    <h3 class="text-3xl font-bold text-red-400 mt-1" id="critical-count">0</h3>
+                                    <p class="text-slate-400 text-xs md:text-sm">Критический запас</p>
+                                    <h3 class="text-xl md:text-3xl font-bold text-red-400 mt-1" id="critical-count">0</h3>
                                 </div>
-                                <div class="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center text-red-400 status-critical">
-                                    <i class="fas fa-exclamation-triangle"></i>
+                                <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-red-500/20 flex items-center justify-center text-red-400 status-critical">
+                                    <i class="fas fa-exclamation-triangle text-sm md:text-base"></i>
                                 </div>
                             </div>
-                            <div class="text-xs text-slate-400">Требуют срочной закупки</div>
+                            <div class="text-xs text-slate-400 hidden md:block">Требуют закупки</div>
                         </div>
 
-                        <div class="glass rounded-xl p-6 glass-hover">
-                            <div class="flex justify-between items-start mb-4">
+                        <div class="glass rounded-xl p-3 md:p-6 glass-hover mobile-stat-card">
+                            <div class="flex justify-between items-start mb-2 md:mb-4">
                                 <div>
-                                    <p class="text-slate-400 text-sm">В пути из Китая</p>
-                                    <h3 class="text-3xl font-bold text-yellow-400 mt-1" id="transit-count">0</h3>
+                                    <p class="text-slate-400 text-xs md:text-sm">В пути из Китая</p>
+                                    <h3 class="text-xl md:text-3xl font-bold text-yellow-400 mt-1" id="transit-count">0</h3>
                                 </div>
-                                <div class="w-10 h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center text-yellow-400">
-                                    <i class="fas fa-ship"></i>
+                                <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center text-yellow-400">
+                                    <i class="fas fa-ship text-sm md:text-base"></i>
                                 </div>
                             </div>
-                            <div class="text-xs text-slate-400">Средний срок: 45 дней</div>
+                            <div class="text-xs text-slate-400 hidden md:block">Ср. срок: 45 дней</div>
                         </div>
 
-                        <div class="glass rounded-xl p-6 glass-hover">
-                            <div class="flex justify-between items-start mb-4">
+                        <div class="glass rounded-xl p-3 md:p-6 glass-hover mobile-stat-card">
+                            <div class="flex justify-between items-start mb-2 md:mb-4">
                                 <div>
-                                    <p class="text-slate-400 text-sm">Продажи (мес)</p>
-                                    <h3 class="text-3xl font-bold text-green-400 mt-1">₽2.4M</h3>
+                                    <p class="text-slate-400 text-xs md:text-sm">Продажи (мес)</p>
+                                    <h3 class="text-xl md:text-3xl font-bold text-green-400 mt-1">₽2.4M</h3>
                                 </div>
-                                <div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center text-green-400">
-                                    <i class="fas fa-ruble-sign"></i>
+                                <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-green-500/20 flex items-center justify-center text-green-400">
+                                    <i class="fas fa-ruble-sign text-sm md:text-base"></i>
                                 </div>
                             </div>
-                            <div class="text-xs text-green-400 flex items-center gap-1">
-                                <i class="fas fa-arrow-up"></i> +8% к прошлому месяцу
+                            <div class="text-xs text-green-400 hidden md:flex items-center gap-1">
+                                <i class="fas fa-arrow-up"></i> +8%
                             </div>
                         </div>
                     </div>
 
                     <!-- Charts & Alerts -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div class="lg:col-span-2 glass rounded-xl p-6">
-                            <h3 class="text-lg font-semibold mb-4">Динамика запасов</h3>
-                            <canvas id="stockChart" height="200"></canvas>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+                        <div class="lg:col-span-2 glass rounded-xl p-4 md:p-6">
+                            <h3 class="text-base md:text-lg font-semibold mb-4">Динамика запасов</h3>
+                            <div class="mobile-chart">
+                                <canvas id="stockChart" height="150"></canvas>
+                            </div>
                         </div>
                         
-                        <div class="glass rounded-xl p-6">
-                            <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
-                                <i class="fas fa-bell text-yellow-400"></i> Уведомления
+                        <div class="glass rounded-xl p-4 md:p-6">
+                            <h3 class="text-base md:text-lg font-semibold mb-4 flex items-center gap-2">
+                                <i class="fas fa-bell text-yellow-400"></i> <span class="mobile-hidden">Уведомления</span><span class="md:hidden">Алерты</span>
                             </h3>
                             <div class="space-y-3" id="alerts-list">
                                 <!-- Alerts injected here -->
@@ -172,92 +249,100 @@
                     </div>
 
                     <!-- Quick Access -->
-                    <div class="glass rounded-xl p-6">
-                        <h3 class="text-lg font-semibold mb-4">Быстрый доступ</h3>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <button onclick="switchTab('inventory'); filterByEquipment('vibro')" class="p-4 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 transition-all text-left group">
-                                <i class="fas fa-industry text-2xl text-blue-400 mb-2 group-hover:scale-110 transition-transform"></i>
-                                <div class="font-medium">Вибропрессы</div>
-                                <div class="text-xs text-slate-400">Запчасти и узлы</div>
+                    <div class="glass rounded-xl p-4 md:p-6">
+                        <h3 class="text-base md:text-lg font-semibold mb-4">Быстрый доступ</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                            <button onclick="switchTab('inventory'); filterByEquipment('vibro')" class="p-3 md:p-4 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 transition-all text-left group touch-target">
+                                <i class="fas fa-industry text-xl md:text-2xl text-blue-400 mb-2 group-hover:scale-110 transition-transform block"></i>
+                                <div class="font-medium text-sm md:text-base">Вибропрессы</div>
+                                <div class="text-xs text-slate-400 hidden md:block">Запчасти</div>
                             </button>
-                            <button onclick="switchTab('inventory'); filterByEquipment('mixer')" class="p-4 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 transition-all text-left group">
-                                <i class="fas fa-blender text-2xl text-purple-400 mb-2 group-hover:scale-110 transition-transform"></i>
-                                <div class="font-medium">Смесители</div>
-                                <div class="text-xs text-slate-400">Запчасти и узлы</div>
+                            <button onclick="switchTab('inventory'); filterByEquipment('mixer')" class="p-3 md:p-4 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 transition-all text-left group touch-target">
+                                <i class="fas fa-blender text-xl md:text-2xl text-purple-400 mb-2 group-hover:scale-110 transition-transform block"></i>
+                                <div class="font-medium text-sm md:text-base">Смесители</div>
+                                <div class="text-xs text-slate-400 hidden md:block">Запчасти</div>
                             </button>
-                            <button onclick="openModal('supplier-modal')" class="p-4 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 transition-all text-left group">
-                                <i class="fas fa-plus-circle text-2xl text-green-400 mb-2 group-hover:scale-110 transition-transform"></i>
-                                <div class="font-medium">Добавить поставщика</div>
-                                <div class="text-xs text-slate-400">Китай/Европа</div>
+                            <button onclick="openModal('supplier-modal')" class="p-3 md:p-4 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 transition-all text-left group touch-target">
+                                <i class="fas fa-plus-circle text-xl md:text-2xl text-green-400 mb-2 group-hover:scale-110 transition-transform block"></i>
+                                <div class="font-medium text-sm md:text-base md:hidden">Поставщик</div>
+                                <div class="font-medium text-sm md:text-base hidden md:block">Добавить поставщика</div>
                             </button>
-                            <button onclick="generateReport()" class="p-4 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 transition-all text-left group">
-                                <i class="fas fa-file-export text-2xl text-orange-400 mb-2 group-hover:scale-110 transition-transform"></i>
-                                <div class="font-medium">Отчёт по запасам</div>
-                                <div class="text-xs text-slate-400">Excel/PDF</div>
+                            <button onclick="generateReport()" class="p-3 md:p-4 rounded-lg bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 transition-all text-left group touch-target">
+                                <i class="fas fa-file-export text-xl md:text-2xl text-orange-400 mb-2 group-hover:scale-110 transition-transform block"></i>
+                                <div class="font-medium text-sm md:text-base md:hidden">Отчет</div>
+                                <div class="font-medium text-sm md:text-base hidden md:block">Отчёт по запасам</div>
                             </button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Inventory View -->
-                <div id="view-inventory" class="hidden space-y-6">
-                    <div class="flex justify-between items-center">
-                        <div class="flex gap-2">
-                            <button onclick="filterInventory('all')" class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm">Все</button>
-                            <button onclick="filterInventory('vibro')" class="px-4 py-2 rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 text-sm">Вибропрессы</button>
-                            <button onclick="filterInventory('mixer')" class="px-4 py-2 rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 text-sm">Смесители</button>
-                            <button onclick="filterInventory('critical')" class="px-4 py-2 rounded-lg bg-red-900/30 text-red-400 hover:bg-red-900/50 text-sm border border-red-800">
-                                <i class="fas fa-exclamation-circle mr-1"></i> Критические
+                <div id="view-inventory" class="hidden space-y-4 md:space-y-6">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                        <div class="flex flex-wrap gap-2 w-full md:w-auto">
+                            <button onclick="filterInventory('all')" class="px-3 py-2 rounded-lg bg-blue-600 text-white text-sm touch-target">Все</button>
+                            <button onclick="filterInventory('vibro')" class="px-3 py-2 rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 text-sm touch-target">Вибро</button>
+                            <button onclick="filterInventory('mixer')" class="px-3 py-2 rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 text-sm touch-target">Смес</button>
+                            <button onclick="filterInventory('critical')" class="px-3 py-2 rounded-lg bg-red-900/30 text-red-400 hover:bg-red-900/50 text-sm border border-red-800 touch-target">
+                                <i class="fas fa-exclamation-circle mr-1"></i> Крит
                             </button>
                         </div>
-                        <div class="flex gap-2">
-                            <input type="text" id="search-parts" placeholder="Поиск по артикулу или названию..." 
-                                   class="px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-sm w-64 focus:outline-none focus:border-blue-500">
-                            <button onclick="openModal('part-modal')" class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm">
-                                <i class="fas fa-plus mr-1"></i> Добавить запчасть
+                        <div class="flex gap-2 w-full md:w-auto">
+                            <input type="text" id="search-parts" placeholder="Поиск..." 
+                                   class="flex-1 md:flex-none px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-sm focus:outline-none focus:border-blue-500">
+                            <button onclick="openModal('part-modal')" class="px-3 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm touch-target whitespace-nowrap">
+                                <i class="fas fa-plus md:mr-1"></i><span class="hidden md:inline"> Добавить</span>
                             </button>
                         </div>
                     </div>
 
-                    <div class="glass rounded-xl overflow-hidden">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-800/50 text-slate-400">
-                                <tr>
-                                    <th class="px-6 py-4 font-medium">Артикул</th>
-                                    <th class="px-6 py-4 font-medium">Наименование</th>
-                                    <th class="px-6 py-4 font-medium">Оборудование</th>
-                                    <th class="px-6 py-4 font-medium">Склад</th>
-                                    <th class="px-6 py-4 font-medium">Мин. запас</th>
-                                    <th class="px-6 py-4 font-medium">Статус</th>
-                                    <th class="px-6 py-4 font-medium">Действия</th>
-                                </tr>
-                            </thead>
-                            <tbody id="inventory-table" class="divide-y divide-slate-700/50">
-                                <!-- Rows injected here -->
-                            </tbody>
-                        </table>
+                    <!-- Desktop Table -->
+                    <div class="glass rounded-xl overflow-hidden hidden md:block">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm">
+                                <thead class="bg-slate-800/50 text-slate-400">
+                                    <tr>
+                                        <th class="px-6 py-4 font-medium">Артикул</th>
+                                        <th class="px-6 py-4 font-medium">Наименование</th>
+                                        <th class="px-6 py-4 font-medium">Оборуд.</th>
+                                        <th class="px-6 py-4 font-medium">Склад</th>
+                                        <th class="px-6 py-4 font-medium">Мин.</th>
+                                        <th class="px-6 py-4 font-medium">Статус</th>
+                                        <th class="px-6 py-4 font-medium">Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inventory-table" class="divide-y divide-slate-700/50">
+                                    <!-- Rows injected here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Cards -->
+                    <div id="inventory-mobile" class="md:hidden space-y-3">
+                        <!-- Mobile cards injected here -->
                     </div>
                 </div>
 
                 <!-- Equipment View -->
-                <div id="view-equipment" class="hidden space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="glass rounded-xl p-6">
-                            <div class="flex items-center justify-between mb-6">
-                                <h3 class="text-xl font-bold text-blue-400">Вибропрессы Qunfeng</h3>
-                                <button onclick="openModal('equipment-modal')" class="text-sm text-blue-400 hover:text-blue-300">+ Добавить модель</button>
+                <div id="view-equipment" class="hidden space-y-4 md:space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                        <div class="glass rounded-xl p-4 md:p-6">
+                            <div class="flex items-center justify-between mb-4 md:mb-6">
+                                <h3 class="text-lg md:text-xl font-bold text-blue-400">Вибропрессы</h3>
+                                <button onclick="openModal('equipment-modal')" class="text-sm text-blue-400 hover:text-blue-300 touch-target">+ Добавить</button>
                             </div>
-                            <div class="space-y-4" id="vibro-list">
+                            <div class="space-y-3" id="vibro-list">
                                 <!-- Equipment cards -->
                             </div>
                         </div>
                         
-                        <div class="glass rounded-xl p-6">
-                            <div class="flex items-center justify-between mb-6">
-                                <h3 class="text-xl font-bold text-purple-400">Смесители Qunfeng</h3>
-                                <button onclick="openModal('equipment-modal')" class="text-sm text-purple-400 hover:text-purple-300">+ Добавить модель</button>
+                        <div class="glass rounded-xl p-4 md:p-6">
+                            <div class="flex items-center justify-between mb-4 md:mb-6">
+                                <h3 class="text-lg md:text-xl font-bold text-purple-400">Смесители</h3>
+                                <button onclick="openModal('equipment-modal')" class="text-sm text-purple-400 hover:text-purple-300 touch-target">+ Добавить</button>
                             </div>
-                            <div class="space-y-4" id="mixer-list">
+                            <div class="space-y-3" id="mixer-list">
                                 <!-- Equipment cards -->
                             </div>
                         </div>
@@ -265,50 +350,59 @@
                 </div>
 
                 <!-- Suppliers View -->
-                <div id="view-suppliers" class="hidden space-y-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-semibold">Поставщики из Китая и Европы</h3>
-                        <button onclick="openModal('supplier-modal')" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm">
-                            <i class="fas fa-plus mr-1"></i> Добавить поставщика
+                <div id="view-suppliers" class="hidden space-y-4 md:space-y-6">
+                    <div class="flex justify-between items-center mb-4 md:mb-6">
+                        <h3 class="text-base md:text-lg font-semibold">Поставщики</h3>
+                        <button onclick="openModal('supplier-modal')" class="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm touch-target">
+                            <i class="fas fa-plus mr-1"></i><span class="hidden md:inline"> Добавить</span>
                         </button>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="suppliers-grid">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" id="suppliers-grid">
                         <!-- Supplier cards injected here -->
                     </div>
                 </div>
 
                 <!-- Clients View -->
-                <div id="view-clients" class="hidden space-y-6">
-                    <div class="glass rounded-xl p-6">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-lg font-semibold">Клиенты и история продаж</h3>
-                            <button onclick="openModal('client-modal')" class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm">
-                                <i class="fas fa-user-plus mr-1"></i> Новый клиент
+                <div id="view-clients" class="hidden space-y-4 md:space-y-6">
+                    <div class="glass rounded-xl p-4 md:p-6">
+                        <div class="flex justify-between items-center mb-4 md:mb-6">
+                            <h3 class="text-base md:text-lg font-semibold">Клиенты</h3>
+                            <button onclick="openModal('client-modal')" class="px-3 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm touch-target">
+                                <i class="fas fa-user-plus mr-1"></i><span class="hidden md:inline"> Новый</span>
                             </button>
                         </div>
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-800/50 text-slate-400">
-                                <tr>
-                                    <th class="px-6 py-4">Компания</th>
-                                    <th class="px-6 py-4">Контакт</th>
-                                    <th class="px-6 py-4">Оборудование</th>
-                                    <th class="px-6 py-4">Последняя покупка</th>
-                                    <th class="px-6 py-4">Общий объем</th>
-                                </tr>
-                            </thead>
-                            <tbody id="clients-table" class="divide-y divide-slate-700/50">
-                                <!-- Client rows -->
-                            </tbody>
-                        </table>
+                        
+                        <!-- Desktop Table -->
+                        <div class="hidden md:block overflow-x-auto">
+                            <table class="w-full text-left text-sm">
+                                <thead class="bg-slate-800/50 text-slate-400">
+                                    <tr>
+                                        <th class="px-6 py-4">Компания</th>
+                                        <th class="px-6 py-4">Контакт</th>
+                                        <th class="px-6 py-4">Оборуд.</th>
+                                        <th class="px-6 py-4">Посл. покупка</th>
+                                        <th class="px-6 py-4">Объем</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="clients-table" class="divide-y divide-slate-700/50">
+                                    <!-- Client rows -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Mobile Cards -->
+                        <div id="clients-mobile" class="md:hidden space-y-3">
+                            <!-- Mobile cards -->
+                        </div>
                     </div>
                 </div>
 
                 <!-- Orders View -->
-                <div id="view-orders" class="hidden space-y-6">
-                    <div class="glass rounded-xl p-6">
-                        <h3 class="text-lg font-semibold mb-6">Заказы на поставку (в пути из Китая)</h3>
-                        <div class="space-y-4" id="orders-list">
+                <div id="view-orders" class="hidden space-y-4 md:space-y-6">
+                    <div class="glass rounded-xl p-4 md:p-6">
+                        <h3 class="text-base md:text-lg font-semibold mb-4 md:mb-6">Заказы в пути</h3>
+                        <div class="space-y-3 md:space-y-4" id="orders-list">
                             <!-- Order tracking -->
                         </div>
                     </div>
@@ -319,99 +413,99 @@
     </div>
 
     <!-- Modal: Add Part -->
-    <div id="part-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50">
-        <div class="glass rounded-xl p-6 w-full max-w-2xl modal-enter">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold">Добавить запасную часть</h3>
-                <button onclick="closeModal('part-modal')" class="text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+    <div id="part-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="glass rounded-xl p-4 md:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto modal-enter">
+            <div class="flex justify-between items-center mb-4 md:mb-6">
+                <h3 class="text-lg md:text-xl font-bold">Добавить запчасть</h3>
+                <button onclick="closeModal('part-modal')" class="text-slate-400 hover:text-white touch-target p-2"><i class="fas fa-times text-xl"></i></button>
             </div>
-            <form onsubmit="savePart(event)" class="grid grid-cols-2 gap-4">
-                <div class="col-span-2">
+            <form onsubmit="savePart(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
                     <label class="block text-sm text-slate-400 mb-1">Наименование</label>
-                    <input type="text" name="name" required class="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none">
+                    <input type="text" name="name" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
                 </div>
                 <div>
-                    <label class="block text-sm text-slate-400 mb-1">Артикул (SKU)</label>
-                    <input type="text" name="sku" required class="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none">
+                    <label class="block text-sm text-slate-400 mb-1">Артикул</label>
+                    <input type="text" name="sku" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
                 </div>
                 <div>
-                    <label class="block text-sm text-slate-400 mb-1">Тип оборудования</label>
-                    <select name="type" class="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none">
+                    <label class="block text-sm text-slate-400 mb-1">Тип</label>
+                    <select name="type" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
                         <option value="vibro">Вибропресс</option>
                         <option value="mixer">Смеситель</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm text-slate-400 mb-1">Модель оборудования</label>
-                    <input type="text" name="model" placeholder="например: QF800" class="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none">
+                    <label class="block text-sm text-slate-400 mb-1">Модель</label>
+                    <input type="text" name="model" placeholder="QF800" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Категория</label>
-                    <select name="category" class="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none">
+                    <select name="category" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
                         <option>Гидравлика</option>
                         <option>Электрика</option>
                         <option>Механика</option>
-                        <option>Износостойкие детали</option>
-                        <option>Узлы и агрегаты</option>
+                        <option>Износостойкие</option>
+                        <option>Узлы</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm text-slate-400 mb-1">Количество на складе</label>
-                    <input type="number" name="stock" min="0" value="0" class="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none">
+                    <label class="block text-sm text-slate-400 mb-1">На складе</label>
+                    <input type="number" name="stock" min="0" value="0" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
                 </div>
                 <div>
-                    <label class="block text-sm text-slate-400 mb-1">Минимальный запас</label>
-                    <input type="number" name="min_stock" min="0" value="5" class="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none">
+                    <label class="block text-sm text-slate-400 mb-1">Мин. запас</label>
+                    <input type="number" name="min_stock" min="0" value="5" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Поставщик</label>
-                    <select name="supplier" id="supplier-select" class="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none">
+                    <select name="supplier" id="supplier-select" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
                         <!-- Options injected -->
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm text-slate-400 mb-1">Срок поставки (дней)</label>
-                    <input type="number" name="lead_time" value="45" class="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none">
+                    <label class="block text-sm text-slate-400 mb-1">Срок (дней)</label>
+                    <input type="number" name="lead_time" value="45" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
                 </div>
-                <div class="col-span-2 flex justify-end gap-3 mt-4">
-                    <button type="button" onclick="closeModal('part-modal')" class="px-4 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600">Отмена</button>
-                    <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-500">Сохранить</button>
+                <div class="md:col-span-2 flex justify-end gap-3 mt-4">
+                    <button type="button" onclick="closeModal('part-modal')" class="px-4 py-3 rounded-lg bg-slate-700 text-white hover:bg-slate-600 touch-target">Отмена</button>
+                    <button type="submit" class="px-4 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-500 touch-target">Сохранить</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Modal: New Order -->
-    <div id="order-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50">
-        <div class="glass rounded-xl p-6 w-full max-w-lg modal-enter">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold">Создать заказ клиента</h3>
-                <button onclick="closeModal('order-modal')" class="text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+    <div id="order-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="glass rounded-xl p-4 md:p-6 w-full max-w-lg modal-enter">
+            <div class="flex justify-between items-center mb-4 md:mb-6">
+                <h3 class="text-lg md:text-xl font-bold">Создать заказ</h3>
+                <button onclick="closeModal('order-modal')" class="text-slate-400 hover:text-white touch-target p-2"><i class="fas fa-times text-xl"></i></button>
             </div>
             <form onsubmit="saveOrder(event)" class="space-y-4">
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Клиент</label>
-                    <select name="client" id="client-select" class="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none">
+                    <select name="client" id="client-select" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
                         <!-- Options injected -->
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm text-slate-400 mb-1">Запасная часть</label>
-                    <select name="part" id="part-select" class="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none">
+                    <label class="block text-sm text-slate-400 mb-1">Запчасть</label>
+                    <select name="part" id="part-select" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
                         <!-- Options injected -->
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Количество</label>
-                    <input type="number" name="quantity" min="1" value="1" class="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none">
+                    <input type="number" name="quantity" min="1" value="1" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Примечания</label>
-                    <textarea name="notes" rows="3" class="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none"></textarea>
+                    <textarea name="notes" rows="3" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target"></textarea>
                 </div>
                 <div class="flex justify-end gap-3 mt-6">
-                    <button type="button" onclick="closeModal('order-modal')" class="px-4 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600">Отмена</button>
-                    <button type="submit" class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-500">Оформить продажу</button>
+                    <button type="button" onclick="closeModal('order-modal')" class="px-4 py-3 rounded-lg bg-slate-700 text-white hover:bg-slate-600 touch-target">Отмена</button>
+                    <button type="submit" class="px-4 py-3 rounded-lg bg-green-600 text-white hover:bg-green-500 touch-target">Оформить</button>
                 </div>
             </form>
         </div>
@@ -424,11 +518,11 @@
                 { id: 1, sku: 'QF-HC-001', name: 'Гидроцилиндр пресса 200т', type: 'vibro', model: 'QF800', category: 'Гидравлика', stock: 2, min_stock: 3, supplier: 'Qunfeng China', lead_time: 60, price: 450000 },
                 { id: 2, sku: 'QF-MX-002', name: 'Вал смесителя JS1500', type: 'mixer', model: 'JS1500', category: 'Механика', stock: 1, min_stock: 2, supplier: 'Qunfeng China', lead_time: 45, price: 120000 },
                 { id: 3, sku: 'QF-EL-003', name: 'Контроллер PLC S7-1200', type: 'vibro', model: 'Universal', category: 'Электрика', stock: 5, min_stock: 2, supplier: 'Siemens DE', lead_time: 14, price: 85000 },
-                { id: 4, sku: 'QF-WP-004', name: 'Поддон формовочный 1200x800', type: 'vibro', model: 'QF600', category: 'Износостойкие детали', stock: 12, min_stock: 10, supplier: 'Qunfeng China', lead_time: 30, price: 15000 },
+                { id: 4, sku: 'QF-WP-004', name: 'Поддон формовочный 1200x800', type: 'vibro', model: 'QF600', category: 'Износостойкие', stock: 12, min_stock: 10, supplier: 'Qunfeng China', lead_time: 30, price: 15000 },
                 { id: 5, sku: 'QF-HC-005', name: 'Гидронасос Rexroth A10VSO', type: 'vibro', model: 'QF1200', category: 'Гидравлика', stock: 0, min_stock: 2, supplier: 'Rexroth DE', lead_time: 21, price: 95000 },
-                { id: 6, sku: 'QF-MX-006', name: 'Лопасть смесителя комплект', type: 'mixer', model: 'JS1000', category: 'Износостойкие детали', stock: 8, min_stock: 5, supplier: 'Qunfeng China', lead_time: 40, price: 22000 },
+                { id: 6, sku: 'QF-MX-006', name: 'Лопасть смесителя комплект', type: 'mixer', model: 'JS1000', category: 'Износостойкие', stock: 8, min_stock: 5, supplier: 'Qunfeng China', lead_time: 40, price: 22000 },
                 { id: 7, sku: 'QF-EL-007', name: 'Датчик давления 0-400 bar', type: 'vibro', model: 'Universal', category: 'Электрика', stock: 3, min_stock: 5, supplier: 'Wika DE', lead_time: 10, price: 12000 },
-                { id: 8, sku: 'QF-MC-008', name: 'Вибромотор 3.7 кВт', type: 'vibro', model: 'QF400', category: 'Узлы и агрегаты', stock: 4, min_stock: 3, supplier: 'Italvibras IT', lead_time: 18, price: 65000 }
+                { id: 8, sku: 'QF-MC-008', name: 'Вибромотор 3.7 кВт', type: 'vibro', model: 'QF400', category: 'Узлы', stock: 4, min_stock: 3, supplier: 'Italvibras IT', lead_time: 18, price: 65000 }
             ],
             suppliers: [
                 { id: 1, name: 'Qunfeng Machinery China', country: 'CN', city: 'Цюаньчжоу', lead_time: 45, type: 'Основной', contact: 'Li Wei' },
@@ -460,24 +554,29 @@
             populateSelects();
         });
 
+        // Mobile Sidebar Toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        }
+
         // Navigation
         function switchTab(tab) {
-            // Hide all views
             document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
             document.getElementById(`view-${tab}`).classList.remove('hidden');
             
-            // Update sidebar
             document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
             document.getElementById(`nav-${tab}`).classList.add('active');
             
-            // Update title
             const titles = {
                 dashboard: 'Обзор системы',
-                inventory: 'Управление запасными частями',
+                inventory: 'Запчасти',
                 equipment: 'Оборудование',
                 suppliers: 'Поставщики',
                 clients: 'Клиенты',
-                orders: 'Заказы и поставки'
+                orders: 'Заказы'
             };
             document.getElementById('page-title').textContent = titles[tab];
         }
@@ -485,14 +584,11 @@
         // Dashboard Updates
         function updateDashboard() {
             document.getElementById('total-items').textContent = store.parts.length;
-            
             const critical = store.parts.filter(p => p.stock <= p.min_stock);
             document.getElementById('critical-count').textContent = critical.length;
-            
             const transit = store.orders.filter(o => o.status === 'transit').length;
             document.getElementById('transit-count').textContent = transit;
             
-            // Alerts
             const alertsList = document.getElementById('alerts-list');
             alertsList.innerHTML = '';
             
@@ -500,12 +596,12 @@
                 const div = document.createElement('div');
                 div.className = 'flex items-center gap-3 p-3 rounded-lg bg-red-900/20 border border-red-800/50';
                 div.innerHTML = `
-                    <i class="fas fa-exclamation-triangle text-red-400"></i>
-                    <div class="flex-1">
-                        <div class="text-sm font-medium text-red-200">${part.name}</div>
-                        <div class="text-xs text-red-400">Остаток: ${part.stock} (мин: ${part.min_stock})</div>
+                    <i class="fas fa-exclamation-triangle text-red-400 flex-shrink-0"></i>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-sm font-medium text-red-200 truncate">${part.name}</div>
+                        <div class="text-xs text-red-400">${part.stock} шт (мин: ${part.min_stock})</div>
                     </div>
-                    <button onclick="openOrderModal(${part.id})" class="px-3 py-1 rounded bg-red-600 hover:bg-red-500 text-white text-xs">Заказать</button>
+                    <button onclick="openOrderModal(${part.id})" class="px-3 py-1 rounded bg-red-600 hover:bg-red-500 text-white text-xs flex-shrink-0">Заказать</button>
                 `;
                 alertsList.appendChild(div);
             });
@@ -513,8 +609,13 @@
 
         // Inventory Management
         function renderInventory(filter = 'all') {
+            // Desktop table
             const tbody = document.getElementById('inventory-table');
             tbody.innerHTML = '';
+            
+            // Mobile cards
+            const mobileContainer = document.getElementById('inventory-mobile');
+            mobileContainer.innerHTML = '';
             
             let parts = store.parts;
             if (filter === 'vibro') parts = parts.filter(p => p.type === 'vibro');
@@ -523,8 +624,10 @@
             
             parts.forEach(part => {
                 const status = part.stock === 0 ? 'danger' : part.stock <= part.min_stock ? 'warning' : 'success';
-                const statusText = part.stock === 0 ? 'Нет в наличии' : part.stock <= part.min_stock ? 'Низкий запас' : 'В наличии';
+                const statusText = part.stock === 0 ? 'Нет' : part.stock <= part.min_stock ? 'Низкий' : 'OK';
+                const statusColor = part.stock === 0 ? 'text-red-400' : part.stock <= part.min_stock ? 'text-yellow-400' : 'text-green-400';
                 
+                // Desktop row
                 const tr = document.createElement('tr');
                 tr.className = 'table-row border-b border-slate-700/50';
                 tr.innerHTML = `
@@ -533,9 +636,7 @@
                         <div class="font-medium">${part.name}</div>
                         <div class="text-xs text-slate-500">${part.category}</div>
                     </td>
-                    <td class="px-6 py-4">
-                        <span class="px-2 py-1 rounded bg-slate-700 text-xs">${part.model}</span>
-                    </td>
+                    <td class="px-6 py-4"><span class="px-2 py-1 rounded bg-slate-700 text-xs">${part.model}</span></td>
                     <td class="px-6 py-4">
                         <div class="flex items-center gap-2">
                             <div class="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
@@ -553,6 +654,35 @@
                     </td>
                 `;
                 tbody.appendChild(tr);
+                
+                // Mobile card
+                const card = document.createElement('div');
+                card.className = 'mobile-table-card';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="font-mono text-blue-400 text-sm">${part.sku}</div>
+                        <span class="badge badge-${status}">${statusText}</span>
+                    </div>
+                    <div class="font-medium mb-1">${part.name}</div>
+                    <div class="text-xs text-slate-500 mb-3">${part.category} | ${part.model}</div>
+                    <div class="mobile-table-row">
+                        <span class="text-slate-400">На складе:</span>
+                        <span class="${statusColor} font-bold">${part.stock} шт</span>
+                    </div>
+                    <div class="mobile-table-row">
+                        <span class="text-slate-400">Мин. запас:</span>
+                        <span>${part.min_stock} шт</span>
+                    </div>
+                    <div class="mobile-table-row">
+                        <span class="text-slate-400">Поставщик:</span>
+                        <span class="text-xs">${part.supplier}</span>
+                    </div>
+                    <div class="flex gap-2 mt-3 pt-3 border-t border-slate-700">
+                        <button onclick="editPart(${part.id})" class="flex-1 py-2 rounded bg-blue-600/20 text-blue-400 text-sm">Изменить</button>
+                        <button onclick="openOrderModal(${part.id})" class="flex-1 py-2 rounded bg-green-600/20 text-green-400 text-sm">Продать</button>
+                    </div>
+                `;
+                mobileContainer.appendChild(card);
             });
         }
 
@@ -572,23 +702,23 @@
             
             store.suppliers.forEach(sup => {
                 const card = document.createElement('div');
-                card.className = 'glass rounded-xl p-6 glass-hover';
+                card.className = 'glass rounded-xl p-4 md:p-6 glass-hover';
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-4">
-                        <div class="w-12 h-12 rounded-lg bg-slate-700 flex items-center justify-center text-2xl">
+                        <div class="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-slate-700 flex items-center justify-center text-xl md:text-2xl">
                             ${sup.country === 'CN' ? '🇨🇳' : sup.country === 'DE' ? '🇩🇪' : '🇮🇹'}
                         </div>
-                        <span class="badge badge-info">${sup.type}</span>
+                        <span class="badge badge-info text-xs">${sup.type}</span>
                     </div>
-                    <h4 class="font-bold text-lg mb-1">${sup.name}</h4>
-                    <p class="text-sm text-slate-400 mb-4">${sup.city}, ${sup.country}</p>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex justify-between"><span class="text-slate-500">Контакт:</span> <span>${sup.contact}</span></div>
-                        <div class="flex justify-between"><span class="text-slate-500">Срок поставки:</span> <span class="text-yellow-400">${sup.lead_time} дней</span></div>
+                    <h4 class="font-bold text-base md:text-lg mb-1">${sup.name}</h4>
+                    <p class="text-xs md:text-sm text-slate-400 mb-3 md:mb-4">${sup.city}, ${sup.country}</p>
+                    <div class="space-y-1 md:space-y-2 text-sm">
+                        <div class="flex justify-between"><span class="text-slate-500 text-xs md:text-sm">Контакт:</span> <span class="text-xs md:text-sm">${sup.contact}</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500 text-xs md:text-sm">Срок:</span> <span class="text-yellow-400 text-xs md:text-sm">${sup.lead_time} дней</span></div>
                     </div>
-                    <div class="mt-4 pt-4 border-t border-slate-700 flex gap-2">
-                        <button class="flex-1 py-2 rounded bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 text-sm">Заказать</button>
-                        <button class="flex-1 py-2 rounded bg-slate-700 text-slate-300 hover:bg-slate-600 text-sm">История</button>
+                    <div class="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-slate-700 flex gap-2">
+                        <button class="flex-1 py-2 rounded bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 text-xs md:text-sm touch-target">Заказать</button>
+                        <button class="flex-1 py-2 rounded bg-slate-700 text-slate-300 hover:bg-slate-600 text-xs md:text-sm touch-target">История</button>
                     </div>
                 `;
                 grid.appendChild(card);
@@ -597,16 +727,20 @@
 
         // Clients
         function renderClients() {
+            // Desktop table
             const tbody = document.getElementById('clients-table');
             tbody.innerHTML = '';
             
+            // Mobile cards
+            const mobileContainer = document.getElementById('clients-mobile');
+            mobileContainer.innerHTML = '';
+            
             store.clients.forEach(client => {
+                // Desktop row
                 const tr = document.createElement('tr');
                 tr.className = 'table-row';
                 tr.innerHTML = `
-                    <td class="px-6 py-4">
-                        <div class="font-medium">${client.name}</div>
-                    </td>
+                    <td class="px-6 py-4"><div class="font-medium">${client.name}</div></td>
                     <td class="px-6 py-4">
                         <div>${client.contact}</div>
                         <div class="text-xs text-slate-500">${client.phone}</div>
@@ -616,6 +750,27 @@
                     <td class="px-6 py-4 font-medium text-green-400">₽${client.total.toLocaleString()}</td>
                 `;
                 tbody.appendChild(tr);
+                
+                // Mobile card
+                const card = document.createElement('div');
+                card.className = 'mobile-table-card';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <div class="font-medium">${client.name}</div>
+                        <span class="text-green-400 font-bold">₽${(client.total/1000000).toFixed(1)}M</span>
+                    </div>
+                    <div class="text-sm text-slate-400 mb-1">${client.contact}</div>
+                    <div class="text-xs text-slate-500 mb-3">${client.phone}</div>
+                    <div class="mobile-table-row">
+                        <span class="text-slate-400">Оборудование:</span>
+                        <span class="text-xs">${client.equipment}</span>
+                    </div>
+                    <div class="mobile-table-row">
+                        <span class="text-slate-400">Последняя покупка:</span>
+                        <span class="text-xs">${client.last_order}</span>
+                    </div>
+                `;
+                mobileContainer.appendChild(card);
             });
         }
 
@@ -629,25 +784,25 @@
                 const progress = order.status === 'transit' ? 60 : order.status === 'processing' ? 30 : 100;
                 
                 const div = document.createElement('div');
-                div.className = 'glass rounded-lg p-4 border-l-4 border-blue-500';
+                div.className = 'glass rounded-lg p-3 md:p-4 border-l-4 border-blue-500';
                 div.innerHTML = `
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <div class="font-bold text-lg">${order.id}</div>
-                            <div class="text-sm text-slate-400">${part ? part.name : 'Unknown'}</div>
+                    <div class="flex justify-between items-start mb-2 md:mb-3">
+                        <div class="min-w-0 flex-1">
+                            <div class="font-bold text-base md:text-lg truncate">${order.id}</div>
+                            <div class="text-xs md:text-sm text-slate-400 truncate">${part ? part.name : 'Unknown'}</div>
                         </div>
-                        <span class="badge badge-${order.status === 'transit' ? 'warning' : 'info'}">
+                        <span class="badge badge-${order.status === 'transit' ? 'warning' : 'info'} flex-shrink-0 ml-2">
                             ${order.status === 'transit' ? 'В пути' : 'Обработка'}
                         </span>
                     </div>
-                    <div class="flex justify-between text-sm mb-2">
-                        <span class="text-slate-400">Количество: <span class="text-white">${order.quantity}</span></span>
-                        <span class="text-slate-400">Поставщик: <span class="text-white">${order.supplier}</span></span>
+                    <div class="flex justify-between text-xs md:text-sm mb-2">
+                        <span class="text-slate-400">Кол-во: <span class="text-white">${order.quantity}</span></span>
+                        <span class="text-slate-400 truncate ml-2">${order.supplier}</span>
                     </div>
                     <div class="space-y-1">
                         <div class="flex justify-between text-xs text-slate-500">
-                            <span>Отправка: ${order.date}</span>
-                            <span>Прибытие: ${order.eta}</span>
+                            <span>Отпр: ${order.date}</span>
+                            <span>Приб: ${order.eta}</span>
                         </div>
                         <div class="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
                             <div class="h-full bg-blue-500 stock-bar" style="width: ${progress}%"></div>
@@ -667,13 +822,13 @@
             const mixers = ['JS500', 'JS750', 'JS1000', 'JS1500', 'JS2000', 'JS3000'];
             
             vibroList.innerHTML = vibros.map(model => `
-                <div class="flex items-center justify-between p-4 rounded-lg bg-slate-800/50 border border-slate-700 hover:border-blue-500/50 transition-colors cursor-pointer" onclick="filterByModel('${model}')">
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded bg-blue-500/20 flex items-center justify-center text-blue-400">
-                            <i class="fas fa-industry"></i>
+                <div class="flex items-center justify-between p-3 md:p-4 rounded-lg bg-slate-800/50 border border-slate-700 hover:border-blue-500/50 transition-colors cursor-pointer touch-target" onclick="filterByModel('${model}')">
+                    <div class="flex items-center gap-3 md:gap-4">
+                        <div class="w-8 h-8 md:w-10 md:h-10 rounded bg-blue-500/20 flex items-center justify-center text-blue-400">
+                            <i class="fas fa-industry text-sm md:text-base"></i>
                         </div>
                         <div>
-                            <div class="font-medium">Вибропресс ${model}</div>
+                            <div class="font-medium text-sm md:text-base">${model}</div>
                             <div class="text-xs text-slate-500">${store.parts.filter(p => p.model === model).length} позиций</div>
                         </div>
                     </div>
@@ -682,13 +837,13 @@
             `).join('');
             
             mixerList.innerHTML = mixers.map(model => `
-                <div class="flex items-center justify-between p-4 rounded-lg bg-slate-800/50 border border-slate-700 hover:border-purple-500/50 transition-colors cursor-pointer" onclick="filterByModel('${model}')">
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded bg-purple-500/20 flex items-center justify-center text-purple-400">
-                            <i class="fas fa-blender"></i>
+                <div class="flex items-center justify-between p-3 md:p-4 rounded-lg bg-slate-800/50 border border-slate-700 hover:border-purple-500/50 transition-colors cursor-pointer touch-target" onclick="filterByModel('${model}')">
+                    <div class="flex items-center gap-3 md:gap-4">
+                        <div class="w-8 h-8 md:w-10 md:h-10 rounded bg-purple-500/20 flex items-center justify-center text-purple-400">
+                            <i class="fas fa-blender text-sm md:text-base"></i>
                         </div>
                         <div>
-                            <div class="font-medium">Смеситель ${model}</div>
+                            <div class="font-medium text-sm md:text-base">${model}</div>
                             <div class="text-xs text-slate-500">${store.parts.filter(p => p.model === model).length} позиций</div>
                         </div>
                     </div>
@@ -699,39 +854,21 @@
 
         function filterByModel(model) {
             switchTab('inventory');
-            const tbody = document.getElementById('inventory-table');
-            tbody.innerHTML = '';
-            
-            const parts = store.parts.filter(p => p.model === model);
-            parts.forEach(part => {
-                // Same render logic as renderInventory
-                const status = part.stock === 0 ? 'danger' : part.stock <= part.min_stock ? 'warning' : 'success';
-                const tr = document.createElement('tr');
-                tr.className = 'table-row border-b border-slate-700/50';
-                tr.innerHTML = `
-                    <td class="px-6 py-4 font-mono text-blue-400">${part.sku}</td>
-                    <td class="px-6 py-4"><div class="font-medium">${part.name}</div></td>
-                    <td class="px-6 py-4"><span class="px-2 py-1 rounded bg-slate-700 text-xs">${part.model}</span></td>
-                    <td class="px-6 py-4">${part.stock}</td>
-                    <td class="px-6 py-4 text-slate-400">${part.min_stock}</td>
-                    <td class="px-6 py-4"><span class="badge badge-${status}">${part.stock === 0 ? 'Нет' : part.stock <= part.min_stock ? 'Низкий' : 'OK'}</span></td>
-                    <td class="px-6 py-4">
-                        <button onclick="editPart(${part.id})" class="text-blue-400 hover:text-blue-300 mr-3"><i class="fas fa-edit"></i></button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
+            renderInventory('all');
+            // Additional filter logic can be added here
         }
 
         // Modal Functions
         function openModal(id) {
             document.getElementById(id).classList.remove('hidden');
             document.getElementById(id).classList.add('flex');
+            document.body.style.overflow = 'hidden';
         }
 
         function closeModal(id) {
             document.getElementById(id).classList.add('hidden');
             document.getElementById(id).classList.remove('flex');
+            document.body.style.overflow = '';
         }
 
         function populateSelects() {
@@ -742,7 +879,7 @@
             clientSelect.innerHTML = store.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
             
             const partSelect = document.getElementById('part-select');
-            partSelect.innerHTML = store.parts.map(p => `<option value="${p.id}">${p.sku} - ${p.name} (в наличии: ${p.stock})</option>`).join('');
+            partSelect.innerHTML = store.parts.map(p => `<option value="${p.id}">${p.sku} - ${p.name} (${p.stock} шт)</option>`).join('');
         }
 
         // Form Handlers
@@ -777,20 +914,31 @@
             
             if (part.stock >= quantity) {
                 part.stock -= quantity;
-                alert(`Продажа оформлена! Остаток ${part.name}: ${part.stock}`);
+                alert(`Продажа оформлена! ${part.name}: осталось ${part.stock}`);
                 closeModal('order-modal');
                 renderInventory();
                 updateDashboard();
             } else {
-                alert('Недостаточно запасов! Необходимо заказать у поставщика.');
+                alert('Недостаточно запасов! Закажите у поставщика.');
             }
         }
 
         function openOrderModal(partId) {
-            // Pre-select part in order modal
             populateSelects();
             document.getElementById('part-select').value = partId;
             openModal('order-modal');
+        }
+
+        function editPart(id) {
+            alert('Редактирование запчасти ID: ' + id);
+        }
+
+        function deletePart(id) {
+            if (confirm('Удалить запчасть?')) {
+                store.parts = store.parts.filter(p => p.id !== id);
+                renderInventory();
+                updateDashboard();
+            }
         }
 
         // Chart
@@ -801,7 +949,7 @@
                 data: {
                     labels: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн'],
                     datasets: [{
-                        label: 'Остатки на складе',
+                        label: 'Остатки',
                         data: [65, 59, 80, 81, 56, 55],
                         borderColor: '#60a5fa',
                         backgroundColor: 'rgba(96, 165, 250, 0.1)',
@@ -818,12 +966,21 @@
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
-                        legend: { labels: { color: '#94a3b8' } }
+                        legend: { 
+                            labels: { color: '#94a3b8', font: { size: 10 } } 
+                        }
                     },
                     scales: {
-                        y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
-                        x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }
+                        y: { 
+                            grid: { color: '#334155' }, 
+                            ticks: { color: '#94a3b8', font: { size: 10 } } 
+                        },
+                        x: { 
+                            grid: { color: '#334155' }, 
+                            ticks: { color: '#94a3b8', font: { size: 10 } } 
+                        }
                     }
                 }
             });
@@ -833,21 +990,25 @@
         document.getElementById('search-parts')?.addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
             const rows = document.querySelectorAll('#inventory-table tr');
+            const cards = document.querySelectorAll('#inventory-mobile > div');
+            
             rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(term) ? '' : 'none';
+                row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
+            });
+            
+            cards.forEach(card => {
+                card.style.display = card.textContent.toLowerCase().includes(term) ? '' : 'none';
             });
         });
 
         function generateReport() {
-            alert('Формирование отчета по запасам...\nExcel файл будет скачан автоматически.');
+            alert('Формирование отчета...');
         }
 
         // Close modals on outside click
         window.onclick = function(event) {
             if (event.target.classList.contains('fixed')) {
-                event.target.classList.add('hidden');
-                event.target.classList.remove('flex');
+                closeModal(event.target.id);
             }
         }
     </script>
