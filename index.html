@@ -31,8 +31,6 @@
             .mobile-hidden { display: none !important; }
             .mobile-full { width: 100% !important; }
             .mobile-stack { flex-direction: column !important; }
-            .mobile-p-2 { padding: 0.5rem !important; }
-            .mobile-text-sm { font-size: 0.875rem !important; }
             .sidebar-mobile {
                 position: fixed;
                 left: -100%;
@@ -51,11 +49,6 @@
                 display: none;
             }
             .overlay.show { display: block; }
-            .mobile-card {
-                padding: 1rem;
-                margin-bottom: 0.75rem;
-            }
-            .mobile-grid-1 { grid-template-columns: 1fr !important; }
             .mobile-table-card {
                 display: block;
                 margin-bottom: 1rem;
@@ -66,19 +59,11 @@
             }
             .mobile-table-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
             .mobile-table-row:last-child { border-bottom: none; }
-            .mobile-stat-card { padding: 1rem; }
-            .mobile-chart { height: 200px !important; }
         }
         
         .touch-target { min-height: 44px; min-width: 44px; }
-        button, a, input, select { touch-action: manipulation; }
         body { overflow-x: hidden; }
         
-        @supports (padding-top: env(safe-area-inset-top)) {
-            .safe-area-top { padding-top: env(safe-area-inset-top); }
-            .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom); }
-        }
-
         .qty-btn {
             width: 32px;
             height: 32px;
@@ -87,80 +72,27 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            transition: all 0.2s;
+            cursor: pointer;
         }
-        .qty-btn:hover { transform: scale(1.1); }
         .qty-minus { background: rgba(239, 68, 68, 0.2); color: #f87171; }
         .qty-plus { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
-        .qty-edit {
-            background: rgba(96, 165, 250, 0.2);
-            color: #60a5fa;
-            width: auto;
-            padding: 0 12px;
-            font-size: 12px;
-        }
-
+        
         .currency-converter {
             background: linear-gradient(135deg, rgba(234, 179, 8, 0.1), rgba(239, 68, 68, 0.1));
             border: 1px solid rgba(234, 179, 8, 0.3);
-        }
-
-        .status-timeline {
-            position: relative;
-            padding-left: 24px;
-        }
-        .status-timeline::before {
-            content: '';
-            position: absolute;
-            left: 8px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: #334155;
-        }
-        .status-step {
-            position: relative;
-            padding-bottom: 16px;
-        }
-        .status-step::before {
-            content: '';
-            position: absolute;
-            left: -20px;
-            top: 4px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #334155;
-            border: 2px solid #475569;
-        }
-        .status-step.active::before {
-            background: #60a5fa;
-            border-color: #60a5fa;
-            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
-        }
-        .status-step.completed::before {
-            background: #22c55e;
-            border-color: #22c55e;
         }
     </style>
 </head>
 <body class="antialiased">
 
-    <!-- Mobile Overlay -->
     <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
 
-    <!-- App Container -->
     <div class="flex h-screen flex-col md:flex-row">
-        
         <!-- Mobile Header -->
-        <header class="md:hidden h-16 glass border-b border-slate-700/50 flex items-center justify-between px-4 safe-area-top z-30">
-            <button onclick="toggleSidebar()" class="touch-target p-2 text-white">
-                <i class="fas fa-bars text-xl"></i>
-            </button>
+        <header class="md:hidden h-16 glass border-b border-slate-700/50 flex items-center justify-between px-4 z-30">
+            <button onclick="toggleSidebar()" class="touch-target p-2 text-white"><i class="fas fa-bars text-xl"></i></button>
             <h1 class="text-lg font-bold gradient-text">QUNFENG</h1>
-            <button onclick="openModal('order-modal')" class="touch-target p-2 text-blue-400">
-                <i class="fas fa-plus text-xl"></i>
-            </button>
+            <button onclick="openOrderModal()" class="touch-target p-2 text-blue-400"><i class="fas fa-plus text-xl"></i></button>
         </header>
 
         <!-- Sidebar -->
@@ -170,36 +102,31 @@
                     <h1 class="text-2xl font-bold gradient-text">QUNFENG</h1>
                     <p class="text-xs text-slate-400 mt-1">Service Department</p>
                 </div>
-                <button onclick="toggleSidebar()" class="md:hidden touch-target p-2 text-slate-400">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
+                <button onclick="toggleSidebar()" class="md:hidden touch-target p-2 text-slate-400"><i class="fas fa-times text-xl"></i></button>
             </div>
             
             <nav class="flex-1 py-6 space-y-1 overflow-y-auto">
-                <button onclick="switchTab('dashboard'); if(window.innerWidth < 768) toggleSidebar()" id="nav-dashboard" class="sidebar-item active w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3 touch-target">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-item active w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3 touch-target">
                     <i class="fas fa-chart-line w-5"></i> <span>Дашборд</span>
                 </button>
-                <button onclick="switchTab('inventory'); if(window.innerWidth < 768) toggleSidebar()" id="nav-inventory" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3 touch-target">
+                <button onclick="switchTab('inventory')" id="nav-inventory" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3 touch-target">
                     <i class="fas fa-boxes w-5"></i> <span>Запчасти</span>
                 </button>
-                <button onclick="switchTab('forms'); if(window.innerWidth < 768) toggleSidebar()" id="nav-forms" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3 touch-target">
+                <button onclick="switchTab('forms')" id="nav-forms" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3 touch-target">
                     <i class="fas fa-shapes w-5"></i> <span>Формы</span>
                 </button>
-                <button onclick="switchTab('equipment'); if(window.innerWidth < 768) toggleSidebar()" id="nav-equipment" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3 touch-target">
+                <button onclick="switchTab('equipment')" id="nav-equipment" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3 touch-target">
                     <i class="fas fa-cogs w-5"></i> <span>Оборудование</span>
                 </button>
-                <button onclick="switchTab('suppliers'); if(window.innerWidth < 768) toggleSidebar()" id="nav-suppliers" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3 touch-target">
-                    <i class="fas fa-ship w-5"></i> <span>Поставщики</span>
-                </button>
-                <button onclick="switchTab('clients'); if(window.innerWidth < 768) toggleSidebar()" id="nav-clients" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3 touch-target">
+                <button onclick="switchTab('clients')" id="nav-clients" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3 touch-target">
                     <i class="fas fa-users w-5"></i> <span>Клиенты</span>
                 </button>
-                <button onclick="switchTab('orders'); if(window.innerWidth < 768) toggleSidebar()" id="nav-orders" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3 touch-target">
+                <button onclick="switchTab('orders')" id="nav-orders" class="sidebar-item w-full text-left px-6 py-3 text-sm font-medium text-slate-300 hover:text-white transition-colors flex items-center gap-3 touch-target">
                     <i class="fas fa-clipboard-list w-5"></i> <span>Заказы</span>
                 </button>
             </nav>
             
-            <div class="p-4 border-t border-slate-700/50 safe-area-bottom">
+            <div class="p-4 border-t border-slate-700/50">
                 <div class="glass rounded-lg p-4">
                     <div class="flex items-center gap-3 mb-2">
                         <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
@@ -207,7 +134,7 @@
                     </div>
                     <div class="text-xs text-slate-500 mb-2">Курс: <span class="text-yellow-400">1 ¥ = <span id="cny-rate">12.8</span> ₽</span></div>
                     <button onclick="saveToStorage()" class="w-full py-2 bg-blue-600/30 text-blue-400 rounded text-xs hover:bg-blue-600/50">
-                        <i class="fas fa-save mr-1"></i> Сохранить данные
+                        <i class="fas fa-save mr-1"></i> Сохранить
                     </button>
                 </div>
             </div>
@@ -223,24 +150,20 @@
                     <span class="px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-xs border border-blue-500/30">Tech Service</span>
                 </div>
                 <div class="flex items-center gap-4">
-                    <button onclick="openModal('currency-modal')" class="px-4 py-2 bg-yellow-600/30 text-yellow-400 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 border border-yellow-600/50 hover:bg-yellow-600/50">
+                    <button onclick="openModal('currency-modal')" class="px-4 py-2 bg-yellow-600/30 text-yellow-400 rounded-lg text-sm font-medium border border-yellow-600/50 hover:bg-yellow-600/50">
                         <i class="fas fa-exchange-alt"></i> ¥ ↔ ₽
                     </button>
-                    <button onclick="openModal('order-modal')" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+                    <button onclick="openOrderModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium">
                         <i class="fas fa-plus"></i> Новый заказ
                     </button>
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-xs font-bold">
-                        QS
-                    </div>
                 </div>
             </header>
 
-            <!-- Content Scroll Area -->
+            <!-- Content -->
             <div class="flex-1 overflow-y-auto p-4 md:p-8" id="content-area">
                 
-                <!-- Dashboard View -->
+                <!-- Dashboard -->
                 <div id="view-dashboard" class="space-y-4 md:space-y-6">
-                    <!-- Currency Converter Widget -->
                     <div class="currency-converter glass rounded-xl p-4 md:p-6">
                         <div class="flex flex-col md:flex-row items-center justify-between gap-4">
                             <div class="flex items-center gap-3">
@@ -263,229 +186,174 @@
                                     <input type="number" id="rub-input" oninput="convertCurrency('rub')" class="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-yellow-500 focus:outline-none" placeholder="0">
                                 </div>
                             </div>
-                            <button onclick="updateExchangeRate()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm">
-                                <i class="fas fa-sync-alt mr-1"></i> Обновить курс
-                            </button>
                         </div>
                     </div>
 
-                    <!-- Stats Grid -->
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-                        <div class="glass rounded-xl p-3 md:p-6 glass-hover mobile-stat-card">
-                            <div class="flex justify-between items-start mb-2 md:mb-4">
+                        <div class="glass rounded-xl p-3 md:p-6 glass-hover">
+                            <div class="flex justify-between items-start mb-2">
                                 <div>
-                                    <p class="text-slate-400 text-xs md:text-sm">Всего позиций</p>
+                                    <p class="text-slate-400 text-xs">Всего позиций</p>
                                     <h3 class="text-xl md:text-3xl font-bold text-white mt-1" id="total-items">0</h3>
                                 </div>
                                 <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
-                                    <i class="fas fa-cube text-sm md:text-base"></i>
+                                    <i class="fas fa-cube"></i>
                                 </div>
                             </div>
-                            <div class="text-xs text-green-400 hidden md:flex items-center gap-1">
-                                <i class="fas fa-arrow-up"></i> +12%
-                            </div>
                         </div>
-
-                        <div class="glass rounded-xl p-3 md:p-6 glass-hover mobile-stat-card">
-                            <div class="flex justify-between items-start mb-2 md:mb-4">
+                        <div class="glass rounded-xl p-3 md:p-6 glass-hover">
+                            <div class="flex justify-between items-start mb-2">
                                 <div>
-                                    <p class="text-slate-400 text-xs md:text-sm">Критический запас</p>
+                                    <p class="text-slate-400 text-xs">Критический запас</p>
                                     <h3 class="text-xl md:text-3xl font-bold text-red-400 mt-1" id="critical-count">0</h3>
                                 </div>
                                 <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-red-500/20 flex items-center justify-center text-red-400 status-critical">
-                                    <i class="fas fa-exclamation-triangle text-sm md:text-base"></i>
+                                    <i class="fas fa-exclamation-triangle"></i>
                                 </div>
                             </div>
-                            <div class="text-xs text-slate-400 hidden md:block">Требуют закупки</div>
                         </div>
-
-                        <div class="glass rounded-xl p-3 md:p-6 glass-hover mobile-stat-card">
-                            <div class="flex justify-between items-start mb-2 md:mb-4">
+                        <div class="glass rounded-xl p-3 md:p-6 glass-hover">
+                            <div class="flex justify-between items-start mb-2">
                                 <div>
-                                    <p class="text-slate-400 text-xs md:text-sm">Активные заказы</p>
+                                    <p class="text-slate-400 text-xs">Активные заказы</p>
                                     <h3 class="text-xl md:text-3xl font-bold text-yellow-400 mt-1" id="active-orders">0</h3>
                                 </div>
                                 <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-yellow-500/20 flex items-center justify-center text-yellow-400">
-                                    <i class="fas fa-shipping-fast text-sm md:text-base"></i>
+                                    <i class="fas fa-shipping-fast"></i>
                                 </div>
                             </div>
-                            <div class="text-xs text-slate-400 hidden md:block">В работе</div>
                         </div>
-
-                        <div class="glass rounded-xl p-3 md:p-6 glass-hover mobile-stat-card">
-                            <div class="flex justify-between items-start mb-2 md:mb-4">
+                        <div class="glass rounded-xl p-3 md:p-6 glass-hover">
+                            <div class="flex justify-between items-start mb-2">
                                 <div>
-                                    <p class="text-slate-400 text-xs md:text-sm">Выручка (мес)</p>
+                                    <p class="text-slate-400 text-xs">Выручка (мес)</p>
                                     <h3 class="text-xl md:text-3xl font-bold text-green-400 mt-1" id="month-revenue">₽0</h3>
                                 </div>
                                 <div class="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-green-500/20 flex items-center justify-center text-green-400">
-                                    <i class="fas fa-ruble-sign text-sm md:text-base"></i>
+                                    <i class="fas fa-ruble-sign"></i>
                                 </div>
-                            </div>
-                            <div class="text-xs text-green-400 hidden md:flex items-center gap-1">
-                                <i class="fas fa-arrow-up"></i> +8%
                             </div>
                         </div>
                     </div>
 
-                    <!-- Charts & Alerts -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
                         <div class="lg:col-span-2 glass rounded-xl p-4 md:p-6">
                             <h3 class="text-base md:text-lg font-semibold mb-4">Динамика запасов</h3>
-                            <div class="mobile-chart">
-                                <canvas id="stockChart" height="150"></canvas>
-                            </div>
+                            <canvas id="stockChart" height="150"></canvas>
                         </div>
-                        
                         <div class="glass rounded-xl p-4 md:p-6">
-                            <h3 class="text-base md:text-lg font-semibold mb-4 flex items-center gap-2">
-                                <i class="fas fa-bell text-yellow-400"></i> <span class="mobile-hidden">Уведомления</span><span class="md:hidden">Алерты</span>
-                            </h3>
-                            <div class="space-y-3" id="alerts-list">
-                                <!-- Alerts injected here -->
-                            </div>
+                            <h3 class="text-base md:text-lg font-semibold mb-4"><i class="fas fa-bell text-yellow-400 mr-2"></i>Уведомления</h3>
+                            <div class="space-y-3" id="alerts-list"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Inventory View -->
-                <div id="view-inventory" class="hidden space-y-4 md:space-y-6">
+                <!-- Inventory -->
+                <div id="view-inventory" class="hidden space-y-4">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-                        <div class="flex flex-wrap gap-2 w-full md:w-auto">
-                            <button onclick="filterInventory('all')" class="px-3 py-2 rounded-lg bg-blue-600 text-white text-sm touch-target">Все</button>
-                            <button onclick="filterInventory('vibro')" class="px-3 py-2 rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 text-sm touch-target">Вибро</button>
-                            <button onclick="filterInventory('mixer')" class="px-3 py-2 rounded-lg bg-slate-700 text-slate-300 hover:bg-slate-600 text-sm touch-target">Смес</button>
-                            <button onclick="filterInventory('critical')" class="px-3 py-2 rounded-lg bg-red-900/30 text-red-400 hover:bg-red-900/50 text-sm border border-red-800 touch-target">
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="filterInventory('all')" class="px-3 py-2 rounded-lg bg-blue-600 text-white text-sm">Все</button>
+                            <button onclick="filterInventory('vibro')" class="px-3 py-2 rounded-lg bg-slate-700 text-slate-300 text-sm">Вибро</button>
+                            <button onclick="filterInventory('mixer')" class="px-3 py-2 rounded-lg bg-slate-700 text-slate-300 text-sm">Смес</button>
+                            <button onclick="filterInventory('critical')" class="px-3 py-2 rounded-lg bg-red-900/30 text-red-400 text-sm border border-red-800">
                                 <i class="fas fa-exclamation-circle mr-1"></i> Крит
                             </button>
                         </div>
                         <div class="flex gap-2 w-full md:w-auto">
-                            <input type="text" id="search-parts" placeholder="Поиск..." 
-                                   class="flex-1 md:flex-none px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-sm focus:outline-none focus:border-blue-500">
-                            <button onclick="openModal('part-modal')" class="px-3 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm touch-target whitespace-nowrap">
-                                <i class="fas fa-plus md:mr-1"></i><span class="hidden md:inline"> Добавить</span>
+                            <input type="text" id="search-parts" placeholder="Поиск..." class="flex-1 md:flex-none px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-sm">
+                            <button onclick="openModal('part-modal')" class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm">
+                                <i class="fas fa-plus"></i> <span class="hidden md:inline">Добавить</span>
                             </button>
                         </div>
                     </div>
 
-                    <!-- Desktop Table -->
-                    <div class="glass rounded-xl overflow-hidden hidden md:block">
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm">
-                                <thead class="bg-slate-800/50 text-slate-400">
-                                    <tr>
-                                        <th class="px-3 py-4 font-medium">Артикул</th>
-                                        <th class="px-3 py-4 font-medium">Наименование</th>
-                                        <th class="px-3 py-4 font-medium">Оборуд.</th>
-                                        <th class="px-3 py-4 font-medium text-center">Запас</th>
-                                        <th class="px-3 py-4 font-medium text-right">Цена (¥)</th>
-                                        <th class="px-3 py-4 font-medium text-right">Цена (₽)</th>
-                                        <th class="px-3 py-4 font-medium">Статус</th>
-                                        <th class="px-3 py-4 font-medium">Действия</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="inventory-table" class="divide-y divide-slate-700/50">
-                                    <!-- Rows injected here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Mobile Cards -->
-                    <div id="inventory-mobile" class="md:hidden space-y-3">
-                        <!-- Mobile cards injected here -->
-                    </div>
-                </div>
-
-                <!-- Forms View -->
-                <div id="view-forms" class="hidden space-y-4 md:space-y-6">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-                        <h3 class="text-lg font-semibold text-purple-400">Пресс-формы в наличии</h3>
-                        <button onclick="openModal('form-modal')" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm touch-target">
-                            <i class="fas fa-plus mr-1"></i> Добавить форму
-                        </button>
-                    </div>
-
-                    <!-- Desktop Table -->
                     <div class="glass rounded-xl overflow-hidden hidden md:block">
                         <table class="w-full text-left text-sm">
                             <thead class="bg-slate-800/50 text-slate-400">
                                 <tr>
-                                    <th class="px-4 py-4 font-medium">Код формы</th>
-                                    <th class="px-4 py-4 font-medium">Тип изделия</th>
-                                    <th class="px-4 py-4 font-medium">Размеры (мм)</th>
-                                    <th class="px-4 py-4 font-medium">Вес (кг)</th>
-                                    <th class="px-4 py-4 font-medium text-center">Состояние</th>
-                                    <th class="px-4 py-4 font-medium text-center">Кол-во</th>
-                                    <th class="px-4 py-4 font-medium text-right">Цена (₽)</th>
-                                    <th class="px-4 py-4 font-medium">Действия</th>
+                                    <th class="px-3 py-3">Артикул</th>
+                                    <th class="px-3 py-3">Наименование</th>
+                                    <th class="px-3 py-3">Модель</th>
+                                    <th class="px-3 py-3 text-center">Запас</th>
+                                    <th class="px-3 py-3 text-right">Цена (₽)</th>
+                                    <th class="px-3 py-3">Статус</th>
+                                    <th class="px-3 py-3">Действия</th>
                                 </tr>
                             </thead>
-                            <tbody id="forms-table" class="divide-y divide-slate-700/50">
-                                <!-- Forms injected here -->
-                            </tbody>
+                            <tbody id="inventory-table" class="divide-y divide-slate-700/50"></tbody>
                         </table>
                     </div>
+                    <div id="inventory-mobile" class="md:hidden space-y-3"></div>
+                </div>
 
-                    <!-- Mobile Cards -->
+                <!-- Forms -->
+                <div id="view-forms" class="hidden space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-lg font-semibold text-purple-400">Пресс-формы в наличии</h3>
+                        <button onclick="openModal('form-modal')" class="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm">
+                            <i class="fas fa-plus mr-1"></i> Добавить форму
+                        </button>
+                    </div>
+
+                    <div class="glass rounded-xl overflow-hidden hidden md:block">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-800/50 text-slate-400">
+                                <tr>
+                                    <th class="px-4 py-3">Код</th>
+                                    <th class="px-4 py-3">Тип изделия</th>
+                                    <th class="px-4 py-3">Размеры</th>
+                                    <th class="px-4 py-3 text-center">Кол-во</th>
+                                    <th class="px-4 py-3 text-right">Цена (₽)</th>
+                                    <th class="px-4 py-3">Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="forms-table" class="divide-y divide-slate-700/50"></tbody>
+                        </table>
+                    </div>
                     <div id="forms-mobile" class="md:hidden space-y-3"></div>
                 </div>
 
-                <!-- Equipment View -->
-                <div id="view-equipment" class="hidden space-y-4 md:space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                        <div class="glass rounded-xl p-4 md:p-6">
-                            <div class="flex items-center justify-between mb-4 md:mb-6">
-                                <h3 class="text-lg md:text-xl font-bold text-blue-400">Вибропрессы</h3>
-                                <button onclick="openModal('vibro-modal')" class="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm touch-target">
-                                    <i class="fas fa-plus mr-1"></i> Добавить
+                <!-- Equipment -->
+                <div id="view-equipment" class="hidden space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="glass rounded-xl p-4">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-bold text-blue-400">Вибропрессы</h3>
+                                <button onclick="openModal('vibro-modal')" class="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm">
+                                    <i class="fas fa-plus"></i> Добавить
                                 </button>
                             </div>
-                            <div class="space-y-3" id="vibro-list"></div>
+                            <div id="vibro-list" class="space-y-3"></div>
                         </div>
-                        
-                        <div class="glass rounded-xl p-4 md:p-6">
-                            <div class="flex items-center justify-between mb-4 md:mb-6">
-                                <h3 class="text-lg md:text-xl font-bold text-purple-400">Смесители</h3>
-                                <button onclick="openModal('mixer-modal')" class="px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm touch-target">
-                                    <i class="fas fa-plus mr-1"></i> Добавить
+                        <div class="glass rounded-xl p-4">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-bold text-purple-400">Смесители</h3>
+                                <button onclick="openModal('mixer-modal')" class="px-3 py-2 bg-purple-600 text-white rounded-lg text-sm">
+                                    <i class="fas fa-plus"></i> Добавить
                                 </button>
                             </div>
-                            <div class="space-y-3" id="mixer-list"></div>
+                            <div id="mixer-list" class="space-y-3"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Suppliers View -->
-                <div id="view-suppliers" class="hidden space-y-4 md:space-y-6">
-                    <div class="flex justify-between items-center mb-4 md:mb-6">
-                        <h3 class="text-base md:text-lg font-semibold">Поставщики</h3>
-                        <button onclick="openModal('supplier-modal')" class="px-3 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm touch-target">
-                            <i class="fas fa-plus mr-1"></i><span class="hidden md:inline"> Добавить</span>
-                        </button>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6" id="suppliers-grid"></div>
-                </div>
-
-                <!-- Clients View -->
-                <div id="view-clients" class="hidden space-y-4 md:space-y-6">
-                    <div class="glass rounded-xl p-4 md:p-6">
-                        <div class="flex justify-between items-center mb-4 md:mb-6">
-                            <h3 class="text-base md:text-lg font-semibold">Клиенты</h3>
-                            <button onclick="openModal('client-modal')" class="px-3 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm touch-target">
-                                <i class="fas fa-user-plus mr-1"></i><span class="hidden md:inline"> Новый клиент</span>
+                <!-- Clients -->
+                <div id="view-clients" class="hidden space-y-4">
+                    <div class="glass rounded-xl p-4">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold">Клиенты</h3>
+                            <button onclick="openModal('client-modal')" class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm">
+                                <i class="fas fa-user-plus mr-1"></i> Новый клиент
                             </button>
                         </div>
                         <div class="hidden md:block overflow-x-auto">
                             <table class="w-full text-left text-sm">
                                 <thead class="bg-slate-800/50 text-slate-400">
                                     <tr>
-                                        <th class="px-6 py-4">Компания</th>
-                                        <th class="px-6 py-4">Контакт</th>
-                                        <th class="px-6 py-4">Оборуд.</th>
-                                        <th class="px-6 py-4">Посл. покупка</th>
-                                        <th class="px-6 py-4">Объем</th>
-                                        <th class="px-6 py-4">Действия</th>
+                                        <th class="px-6 py-3">Компания</th>
+                                        <th class="px-6 py-3">Контакт</th>
+                                        <th class="px-6 py-3">Телефон</th>
+                                        <th class="px-6 py-3">Действия</th>
                                     </tr>
                                 </thead>
                                 <tbody id="clients-table" class="divide-y divide-slate-700/50"></tbody>
@@ -495,20 +363,20 @@
                     </div>
                 </div>
 
-                <!-- Orders View -->
-                <div id="view-orders" class="hidden space-y-4 md:space-y-6">
-                    <div class="glass rounded-xl p-4 md:p-6">
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4 md:mb-6">
-                            <h3 class="text-base md:text-lg font-semibold">Управление заказами</h3>
+                <!-- Orders -->
+                <div id="view-orders" class="hidden space-y-4">
+                    <div class="glass rounded-xl p-4">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-4">
+                            <h3 class="text-lg font-semibold">Заказы</h3>
                             <div class="flex flex-wrap gap-2">
                                 <button onclick="filterOrders('all')" class="px-3 py-1 rounded bg-blue-600 text-white text-xs">Все</button>
                                 <button onclick="filterOrders('new')" class="px-3 py-1 rounded bg-slate-700 text-slate-300 text-xs">Новые</button>
                                 <button onclick="filterOrders('processing')" class="px-3 py-1 rounded bg-yellow-900/50 text-yellow-400 text-xs">В работе</button>
-                                <button onclick="filterOrders('shipped')" class="px-3 py-1 rounded bg-blue-900/50 text-blue-400 text-xs">Отгружены</button>
+                                <button onclick="filterOrders('shipped')" class="px-3 py-1 rounded bg-purple-900/50 text-purple-400 text-xs">Отгружены</button>
                                 <button onclick="filterOrders('delivered')" class="px-3 py-1 rounded bg-green-900/50 text-green-400 text-xs">Доставлены</button>
                             </div>
                         </div>
-                        <div class="space-y-3 md:space-y-4" id="orders-list"></div>
+                        <div id="orders-list" class="space-y-3"></div>
                         <div id="orders-empty" class="hidden text-center py-8 text-slate-500">
                             <i class="fas fa-clipboard-list text-4xl mb-2"></i>
                             <p>Нет заказов</p>
@@ -520,90 +388,70 @@
         </main>
     </div>
 
-    <!-- Modal: Currency Converter -->
-    <div id="currency-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="glass rounded-xl p-6 w-full max-w-md modal-enter">
+    <!-- MODALS -->
+
+    <!-- Currency -->
+    <div id="currency-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+        <div class="glass rounded-xl p-6 w-full max-w-md">
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-yellow-400"><i class="fas fa-exchange-alt mr-2"></i>Конвертер валют</h3>
-                <button onclick="closeModal('currency-modal')" class="text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+                <h3 class="text-xl font-bold text-yellow-400">Конвертер валют</h3>
+                <button onclick="closeModal('currency-modal')" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
             </div>
-            
             <div class="space-y-4">
                 <div class="bg-slate-800/50 rounded-lg p-4 border border-slate-700">
-                    <label class="text-sm text-slate-400 block mb-2">Текущий курс ЦБ РФ</label>
                     <div class="flex items-center gap-2">
                         <span class="text-2xl font-bold text-yellow-400">1 CNY = <span id="modal-cny-rate">12.8</span> RUB</span>
-                        <button onclick="updateExchangeRate()" class="text-xs text-blue-400 hover:text-blue-300 ml-2">
-                            <i class="fas fa-sync-alt"></i> Обновить
-                        </button>
+                        <button onclick="updateExchangeRate()" class="text-xs text-blue-400 ml-2"><i class="fas fa-sync-alt"></i></button>
                     </div>
-                    <p class="text-xs text-slate-500 mt-1">Обновлен: <span id="rate-date">20.03.2026</span></p>
                 </div>
-
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="text-sm text-slate-400 block mb-2">Юани (CNY)</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-3 text-yellow-400">¥</span>
-                            <input type="number" id="modal-cny" oninput="convertModalCurrency('cny')" class="w-full pl-8 pr-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-yellow-500 focus:outline-none" placeholder="0">
-                        </div>
+                        <label class="text-xs text-slate-400 block mb-1">Юани (¥)</label>
+                        <input type="number" id="modal-cny" oninput="convertModalCurrency('cny')" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                     </div>
                     <div>
-                        <label class="text-sm text-slate-400 block mb-2">Рубли (RUB)</label>
-                        <div class="relative">
-                            <span class="absolute left-3 top-3 text-green-400">₽</span>
-                            <input type="number" id="modal-rub" oninput="convertModalCurrency('rub')" class="w-full pl-8 pr-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-yellow-500 focus:outline-none" placeholder="0">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-slate-800/30 rounded-lg p-3 border border-slate-700">
-                    <p class="text-xs text-slate-400">Быстрый расчет для закупок:</p>
-                    <div class="grid grid-cols-3 gap-2 mt-2">
-                        <button onclick="setCurrencyAmount(1000)" class="py-2 bg-slate-700 rounded text-xs hover:bg-slate-600">¥1,000</button>
-                        <button onclick="setCurrencyAmount(5000)" class="py-2 bg-slate-700 rounded text-xs hover:bg-slate-600">¥5,000</button>
-                        <button onclick="setCurrencyAmount(10000)" class="py-2 bg-slate-700 rounded text-xs hover:bg-slate-600">¥10,000</button>
+                        <label class="text-xs text-slate-400 block mb-1">Рубли (₽)</label>
+                        <input type="number" id="modal-rub" oninput="convertModalCurrency('rub')" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                     </div>
                 </div>
             </div>
-
-            <div class="flex justify-end gap-3 mt-6">
-                <button onclick="closeModal('currency-modal')" class="px-4 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600">Закрыть</button>
+            <div class="flex justify-end mt-6">
+                <button onclick="closeModal('currency-modal')" class="px-4 py-2 rounded-lg bg-slate-700 text-white">Закрыть</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal: Add/Edit Part -->
-    <div id="part-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="glass rounded-xl p-4 md:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto modal-enter">
-            <div class="flex justify-between items-center mb-4 md:mb-6">
-                <h3 class="text-lg md:text-xl font-bold" id="part-modal-title">Добавить запчасть</h3>
-                <button onclick="closeModal('part-modal')" class="text-slate-400 hover:text-white touch-target p-2"><i class="fas fa-times text-xl"></i></button>
+    <!-- Add/Edit Part -->
+    <div id="part-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+        <div class="glass rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold" id="part-modal-title">Добавить запчасть</h3>
+                <button onclick="closeModal('part-modal')" class="text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
             </div>
-            <form onsubmit="savePart(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="hidden" name="edit_id" id="edit-part-id">
+            <form id="part-form" onsubmit="savePart(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="hidden" id="edit-part-id">
                 <div class="md:col-span-2">
                     <label class="block text-sm text-slate-400 mb-1">Наименование</label>
-                    <input type="text" name="name" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                    <input type="text" name="name" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Артикул</label>
-                    <input type="text" name="sku" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                    <input type="text" name="sku" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Тип</label>
-                    <select name="type" id="part-type-select" onchange="updateModelSelect()" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                    <select name="type" id="part-type-select" onchange="updateModelSelect()" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                         <option value="vibro">Вибропресс</option>
                         <option value="mixer">Смеситель</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Модель</label>
-                    <select name="model" id="part-model-select" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target"></select>
+                    <select name="model" id="part-model-select" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white"></select>
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Категория</label>
-                    <select name="category" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                    <select name="category" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                         <option>Гидравлика</option>
                         <option>Электрика</option>
                         <option>Механика</option>
@@ -613,360 +461,374 @@
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">На складе</label>
-                    <input type="number" name="stock" min="0" value="0" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                    <input type="number" name="stock" min="0" value="0" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Мин. запас</label>
-                    <input type="number" name="min_stock" min="0" value="5" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                    <input type="number" name="min_stock" min="0" value="5" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Цена закупки (¥)</label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-3 text-yellow-400">¥</span>
-                        <input type="number" name="price_cny" id="part-price-cny" min="0" value="0" oninput="calculateRubPrice()" class="w-full pl-8 pr-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-yellow-500 focus:outline-none touch-target">
-                    </div>
+                    <input type="number" name="price_cny" id="part-price-cny" min="0" value="0" oninput="calculateRubPrice()" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Цена продажи (₽)</label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-3 text-green-400">₽</span>
-                        <input type="number" name="price" id="part-price-rub" min="0" value="0" class="w-full pl-8 pr-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-green-500 focus:outline-none touch-target">
-                    </div>
-                    <p class="text-xs text-slate-500 mt-1">Авто: <span id="auto-price-rub">0</span> ₽ (курс +20%)</p>
+                    <input type="number" name="price" id="part-price-rub" min="0" value="0" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                    <p class="text-xs text-slate-500 mt-1">Авто: <span id="auto-price-rub">0</span> ₽</p>
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Поставщик</label>
-                    <select name="supplier" id="supplier-select" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target"></select>
+                    <select name="supplier" id="supplier-select" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white"></select>
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Срок поставки (дней)</label>
-                    <input type="number" name="lead_time" value="45" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-blue-500 focus:outline-none touch-target">
+                    <input type="number" name="lead_time" value="45" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                 </div>
                 <div class="md:col-span-2 flex justify-end gap-3 mt-4">
-                    <button type="button" onclick="closeModal('part-modal')" class="px-4 py-3 rounded-lg bg-slate-700 text-white hover:bg-slate-600 touch-target">Отмена</button>
-                    <button type="submit" class="px-4 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-500 touch-target">Сохранить</button>
+                    <button type="button" onclick="closeModal('part-modal')" class="px-4 py-3 rounded-lg bg-slate-700 text-white">Отмена</button>
+                    <button type="submit" class="px-4 py-3 rounded-lg bg-blue-600 text-white">Сохранить</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal: Edit Stock -->
-    <div id="edit-stock-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="glass rounded-xl p-4 md:p-6 w-full max-w-sm modal-enter">
+    <!-- Edit Stock -->
+    <div id="edit-stock-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+        <div class="glass rounded-xl p-6 w-full max-w-sm">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-lg font-bold">Изменить остаток</h3>
                 <button onclick="closeModal('edit-stock-modal')" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
             </div>
             <div class="mb-4">
                 <p class="text-sm text-slate-400 mb-2" id="edit-stock-name">Запчасть</p>
-                <div class="flex items-center gap-3">
-                    <button onclick="adjustStock(-1)" class="qty-btn qty-minus"><i class="fas fa-minus"></i></button>
-                    <input type="number" id="edit-stock-value" class="flex-1 px-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-center text-xl font-bold" readonly>
-                    <button onclick="adjustStock(1)" class="qty-btn qty-plus"><i class="fas fa-plus"></i></button>
+                <div class="flex items-center justify-center gap-4">
+                    <button onclick="adjustStock(-1)" class="qty-btn qty-minus text-xl"><i class="fas fa-minus"></i></button>
+                    <input type="number" id="edit-stock-value" class="w-20 px-2 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-center text-2xl font-bold" readonly>
+                    <button onclick="adjustStock(1)" class="qty-btn qty-plus text-xl"><i class="fas fa-plus"></i></button>
                 </div>
             </div>
             <div class="flex gap-2 mb-4">
-                <input type="number" id="custom-stock-input" placeholder="Ввести вручную" class="flex-1 px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-sm">
+                <input type="number" id="custom-stock-input" placeholder="Ввести число" class="flex-1 px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-sm">
                 <button onclick="setCustomStock()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">OK</button>
             </div>
             <div class="flex justify-end gap-3">
-                <button onclick="closeModal('edit-stock-modal')" class="px-4 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600">Отмена</button>
-                <button onclick="saveStockEdit()" class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-500">Сохранить</button>
+                <button onclick="closeModal('edit-stock-modal')" class="px-4 py-2 rounded-lg bg-slate-700 text-white">Отмена</button>
+                <button onclick="saveStockEdit()" class="px-4 py-2 rounded-lg bg-green-600 text-white">Сохранить</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal: Add Press Form -->
-    <div id="form-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="glass rounded-xl p-4 md:p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto modal-enter">
-            <div class="flex justify-between items-center mb-4 md:mb-6">
-                <h3 class="text-lg md:text-xl font-bold text-purple-400">Добавить пресс-форму</h3>
-                <button onclick="closeModal('form-modal')" class="text-slate-400 hover:text-white touch-target p-2"><i class="fas fa-times text-xl"></i></button>
+    <!-- Add Form -->
+    <div id="form-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+        <div class="glass rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-purple-400" id="form-modal-title">Добавить пресс-форму</h3>
+                <button onclick="closeModal('form-modal')" class="text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
             </div>
-            <form onsubmit="saveForm(event)" class="space-y-4">
+            <form id="form-form" onsubmit="saveForm(event)" class="space-y-4">
+                <input type="hidden" id="edit-form-id">
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Код формы</label>
-                    <input type="text" name="code" required placeholder="например: F-800-БП" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-purple-500 focus:outline-none touch-target">
+                    <input type="text" name="code" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Тип изделия</label>
-                    <input type="text" name="product_type" required placeholder="например: Бордюрный камень" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-purple-500 focus:outline-none touch-target">
+                    <input type="text" name="product_type" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                 </div>
                 <div class="grid grid-cols-3 gap-3">
                     <div>
                         <label class="block text-sm text-slate-400 mb-1">Длина (мм)</label>
-                        <input type="number" name="length" placeholder="500" class="w-full px-3 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-purple-500 focus:outline-none touch-target">
+                        <input type="number" name="length" class="w-full px-3 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                     </div>
                     <div>
                         <label class="block text-sm text-slate-400 mb-1">Ширина (мм)</label>
-                        <input type="number" name="width" placeholder="200" class="w-full px-3 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-purple-500 focus:outline-none touch-target">
+                        <input type="number" name="width" class="w-full px-3 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                     </div>
                     <div>
                         <label class="block text-sm text-slate-400 mb-1">Высота (мм)</label>
-                        <input type="number" name="height" placeholder="80" class="w-full px-3 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-purple-500 focus:outline-none touch-target">
+                        <input type="number" name="height" class="w-full px-3 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm text-slate-400 mb-1">Вес формы (кг)</label>
-                    <input type="number" name="weight" placeholder="1250" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-purple-500 focus:outline-none touch-target">
-                </div>
-                <div>
-                    <label class="block text-sm text-slate-400 mb-1">Материал</label>
-                    <select name="material" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-purple-500 focus:outline-none touch-target">
-                        <option value="Сталь 45">Сталь 45</option>
-                        <option value="Сталь 40Х">Сталь 40Х</option>
-                        <option value="Чугун">Чугун</option>
-                        <option value="Алюминий">Алюминий</option>
-                    </select>
+                    <label class="block text-sm text-slate-400 mb-1">Вес (кг)</label>
+                    <input type="number" name="weight" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm text-slate-400 mb-1">Количество</label>
-                        <input type="number" name="quantity" min="1" value="1" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-purple-500 focus:outline-none touch-target">
+                        <input type="number" name="quantity" min="0" value="1" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                     </div>
                     <div>
                         <label class="block text-sm text-slate-400 mb-1">Цена (₽)</label>
-                        <input type="number" name="price" min="0" value="0" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-purple-500 focus:outline-none touch-target">
+                        <input type="number" name="price" min="0" value="0" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                     </div>
                 </div>
                 <div>
                     <label class="block text-sm text-slate-400 mb-1">Состояние</label>
-                    <select name="condition" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-purple-500 focus:outline-none touch-target">
+                    <select name="condition" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                         <option value="new">Новая</option>
-                        <option value="used">Б/у (хорошее)</option>
+                        <option value="used">Б/у</option>
                         <option value="restored">Восстановленная</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-sm text-slate-400 mb-1">Описание</label>
-                    <textarea name="description" rows="2" placeholder="Особенности формы..." class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:border-purple-500 focus:outline-none touch-target"></textarea>
-                </div>
                 <div class="flex justify-end gap-3 mt-6">
-                    <button type="button" onclick="closeModal('form-modal')" class="px-4 py-3 rounded-lg bg-slate-700 text-white hover:bg-slate-600 touch-target">Отмена</button>
-                    <button type="submit" class="px-4 py-3 rounded-lg bg-purple-600 text-white hover:bg-purple-500 touch-target">Сохранить форму</button>
+                    <button type="button" onclick="closeModal('form-modal')" class="px-4 py-3 rounded-lg bg-slate-700 text-white">Отмена</button>
+                    <button type="submit" class="px-4 py-3 rounded-lg bg-purple-600 text-white">Сохранить</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal: Order Status -->
-    <div id="order-status-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-        <div class="glass rounded-xl p-6 w-full max-w-md modal-enter">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold">Изменить статус заказа</h3>
-                <button onclick="closeModal('order-status-modal')" class="text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+    <!-- Add Vibro -->
+    <div id="vibro-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+        <div class="glass rounded-xl p-6 w-full max-w-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-blue-400">Добавить вибропресс</h3>
+                <button onclick="closeModal('vibro-modal')" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
             </div>
-            
-            <div class="mb-4 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
-                <p class="text-sm text-slate-400">Заказ: <span id="status-order-id" class="text-white font-bold"></span></p>
-                <p class="text-sm text-slate-400 mt-1">Клиент: <span id="status-client-name" class="text-white"></span></p>
-            </div>
+            <form onsubmit="saveEquipment(event, 'vibro')" class="space-y-4">
+                <input type="text" name="model" required placeholder="QF1000" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                <input type="number" name="capacity" placeholder="Производительность" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                <input type="number" name="power" placeholder="Мощность (кВт)" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                <input type="number" name="year" value="2024" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                <textarea name="description" placeholder="Описание" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white"></textarea>
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('vibro-modal')" class="px-4 py-2 bg-slate-700 text-white rounded-lg">Отмена</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-            <div class="space-y-3">
-                <button onclick="setOrderStatus('new')" class="w-full p-4 rounded-lg bg-slate-800 border-2 border-slate-700 hover:border-blue-500 flex items-center gap-3 transition-all" id="btn-status-new">
-                    <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400"><i class="fas fa-inbox"></i></div>
-                    <div class="text-left">
-                        <div class="font-bold text-white">Принят в работу</div>
-                        <div class="text-xs text-slate-400">Новый заказ</div>
+    <!-- Add Mixer -->
+    <div id="mixer-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+        <div class="glass rounded-xl p-6 w-full max-w-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-purple-400">Добавить смеситель</h3>
+                <button onclick="closeModal('mixer-modal')" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            <form onsubmit="saveEquipment(event, 'mixer')" class="space-y-4">
+                <input type="text" name="model" required placeholder="JS2000" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                <input type="number" name="volume" placeholder="Объем (л)" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                <input type="number" name="capacity" placeholder="Производительность (м³/ч)" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                <input type="number" name="power" placeholder="Мощность (кВт)" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                <input type="number" name="year" value="2024" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                <textarea name="description" placeholder="Описание" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white"></textarea>
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('mixer-modal')" class="px-4 py-2 bg-slate-700 text-white rounded-lg">Отмена</button>
+                    <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-lg">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Client -->
+    <div id="client-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+        <div class="glass rounded-xl p-6 w-full max-w-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-green-400">Новый клиент</h3>
+                <button onclick="closeModal('client-modal')" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            <form onsubmit="saveClient(event)" class="space-y-4">
+                <input type="text" name="name" required placeholder="Название компании" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                <input type="text" name="contact" required placeholder="Контактное лицо" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                <input type="tel" name="phone" required placeholder="Телефон" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                <input type="text" name="city" placeholder="Город" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                <input type="text" name="equipment" placeholder="Оборудование (QF800, JS1500)" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
+                <div class="flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('client-modal')" class="px-4 py-2 bg-slate-700 text-white rounded-lg">Отмена</button>
+                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Order -->
+    <div id="order-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+        <div class="glass rounded-xl p-6 w-full max-w-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-green-400">Оформить продажу</h3>
+                <button onclick="closeModal('order-modal')" class="text-slate-400 hover:text-white"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <form id="order-form" onsubmit="saveOrder(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Клиент</label>
+                    <select name="client" id="order-client-select" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white" onchange="updateOrderClient()"></select>
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Запчасть</label>
+                    <select name="part" id="order-part-select" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white" onchange="updateOrderPart()"></select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">Количество</label>
+                        <input type="number" name="quantity" id="order-quantity" min="1" value="1" onchange="calculateOrderTotal()" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white">
                     </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">Итого (₽)</label>
+                        <div class="px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-green-400 font-bold text-xl" id="order-total">0</div>
+                    </div>
+                </div>
+                <div class="bg-slate-800/50 rounded-lg p-3 border border-slate-700">
+                    <div class="flex justify-between text-sm mb-1">
+                        <span class="text-slate-400">Доступно:</span>
+                        <span class="text-white font-bold" id="order-available">-</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-400">Цена за шт:</span>
+                        <span class="text-white" id="order-price">-</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm text-slate-400 mb-1">Примечания</label>
+                    <textarea name="notes" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white"></textarea>
+                </div>
+                <div class="flex justify-end gap-3 mt-6">
+                    <button type="button" onclick="closeModal('order-modal')" class="px-4 py-3 rounded-lg bg-slate-700 text-white">Отмена</button>
+                    <button type="submit" class="px-4 py-3 rounded-lg bg-green-600 text-white">Оформить заказ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order Status -->
+    <div id="order-status-modal" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50 p-4">
+        <div class="glass rounded-xl p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold">Изменить статус</h3>
+                <button onclick="closeModal('order-status-modal')" class="text-slate-400 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="mb-4 p-3 bg-slate-800/50 rounded border border-slate-700">
+                <p class="text-sm text-slate-400">Заказ: <span id="status-order-id" class="text-white font-bold"></span></p>
+            </div>
+            <div class="space-y-2">
+                <button onclick="setOrderStatus('new')" class="w-full p-3 rounded-lg bg-slate-800 hover:bg-blue-900/50 text-left border border-slate-700 hover:border-blue-500">
+                    <i class="fas fa-inbox text-blue-400 mr-2"></i> Принят в работу
                 </button>
-                
-                <button onclick="setOrderStatus('processing')" class="w-full p-4 rounded-lg bg-slate-800 border-2 border-slate-700 hover:border-yellow-500 flex items-center gap-3 transition-all" id="btn-status-processing">
-                    <div class="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-400"><i class="fas fa-cogs"></i></div>
-                    <div class="text-left">
-                        <div class="font-bold text-white">В обработке</div>
-                        <div class="text-xs text-slate-400">Комплектуется</div>
-                    </div>
+                <button onclick="setOrderStatus('processing')" class="w-full p-3 rounded-lg bg-slate-800 hover:bg-yellow-900/50 text-left border border-slate-700 hover:border-yellow-500">
+                    <i class="fas fa-cogs text-yellow-400 mr-2"></i> В обработке
                 </button>
-                
-                <button onclick="setOrderStatus('shipped')" class="w-full p-4 rounded-lg bg-slate-800 border-2 border-slate-700 hover:border-purple-500 flex items-center gap-3 transition-all" id="btn-status-shipped">
-                    <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400"><i class="fas fa-shipping-fast"></i></div>
-                    <div class="text-left">
-                        <div class="font-bold text-white">Отгружен со склада</div>
-                        <div class="text-xs text-slate-400">В пути к клиенту</div>
-                    </div>
+                <button onclick="setOrderStatus('shipped')" class="w-full p-3 rounded-lg bg-slate-800 hover:bg-purple-900/50 text-left border border-slate-700 hover:border-purple-500">
+                    <i class="fas fa-shipping-fast text-purple-400 mr-2"></i> Отгружен со склада
                 </button>
-                
-                <button onclick="setOrderStatus('delivered')" class="w-full p-4 rounded-lg bg-slate-800 border-2 border-slate-700 hover:border-green-500 flex items-center gap-3 transition-all" id="btn-status-delivered">
-                    <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400"><i class="fas fa-check-circle"></i></div>
-                    <div class="text-left">
-                        <div class="font-bold text-white">Получен клиентом</div>
-                        <div class="text-xs text-slate-400">Заказ выполнен</div>
-                    </div>
+                <button onclick="setOrderStatus('delivered')" class="w-full p-3 rounded-lg bg-slate-800 hover:bg-green-900/50 text-left border border-slate-700 hover:border-green-500">
+                    <i class="fas fa-check-circle text-green-400 mr-2"></i> Получен клиентом
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Other modals remain similar but updated... -->
-    <!-- (Vibro, Mixer, Client, Supplier modals - keeping structure but ensuring they work) -->
-
     <script>
-        // Exchange rate
+        // Data
         let CNY_RATE = 12.8;
-        
-        // Data Store
-        const defaultData = {
+        let currentEditPartId = null;
+        let currentEditFormId = null;
+        let currentEditStock = 0;
+        let currentEditOrderId = null;
+
+        const store = {
             parts: [
                 { id: 1, sku: 'QF-HC-001', name: 'Гидроцилиндр пресса 200т', type: 'vibro', model: 'QF800', category: 'Гидравлика', stock: 2, min_stock: 3, supplier: 'Qunfeng China', lead_time: 60, price_cny: 35000, price: 537600 },
                 { id: 2, sku: 'QF-MX-002', name: 'Вал смесителя JS1500', type: 'mixer', model: 'JS1500', category: 'Механика', stock: 1, min_stock: 2, supplier: 'Qunfeng China', lead_time: 45, price_cny: 9375, price: 143360 },
                 { id: 3, sku: 'QF-EL-003', name: 'Контроллер PLC S7-1200', type: 'vibro', model: 'Universal', category: 'Электрика', stock: 5, min_stock: 2, supplier: 'Siemens DE', lead_time: 14, price_cny: 0, price: 85000 },
-                { id: 4, sku: 'QF-WP-004', name: 'Поддон формовочный 1200x800', type: 'vibro', model: 'QF600', category: 'Износостойкие', stock: 12, min_stock: 10, supplier: 'Qunfeng China', lead_time: 30, price_cny: 1172, price: 17920 },
-                { id: 5, sku: 'QF-HC-005', name: 'Гидронасос Rexroth A10VSO', type: 'vibro', model: 'QF1200', category: 'Гидравлика', stock: 0, min_stock: 2, supplier: 'Rexroth DE', lead_time: 21, price_cny: 0, price: 95000 },
-                { id: 6, sku: 'QF-MX-006', name: 'Лопасть смесителя комплект', type: 'mixer', model: 'JS1000', category: 'Износостойкие', stock: 8, min_stock: 5, supplier: 'Qunfeng China', lead_time: 40, price_cny: 1719, price: 26291 },
-                { id: 7, sku: 'QF-EL-007', name: 'Датчик давления 0-400 bar', type: 'vibro', model: 'Universal', category: 'Электрика', stock: 3, min_stock: 5, supplier: 'Wika DE', lead_time: 10, price_cny: 0, price: 12000 },
-                { id: 8, sku: 'QF-MC-008', name: 'Вибромотор 3.7 кВт', type: 'vibro', model: 'QF400', category: 'Узлы', stock: 4, min_stock: 3, supplier: 'Italvibras IT', lead_time: 18, price_cny: 0, price: 65000 }
+                { id: 4, sku: 'QF-WP-004', name: 'Поддон формовочный 1200x800', type: 'vibro', model: 'QF600', category: 'Износостойкие', stock: 12, min_stock: 10, supplier: 'Qunfeng China', lead_time: 30, price_cny: 1172, price: 17920 }
             ],
             forms: [
                 { id: 1, code: 'F-600-БП', product_type: 'Бордюрный камень', length: 500, width: 200, height: 80, weight: 850, material: 'Сталь 45', quantity: 3, price: 125000, condition: 'new', description: 'Для QF600' },
-                { id: 2, code: 'F-800-ТП', product_type: 'Тротуарная плитка', length: 200, width: 200, height: 60, weight: 620, material: 'Сталь 40Х', quantity: 2, price: 98000, condition: 'used', description: 'Состояние хорошее' },
-                { id: 3, code: 'F-1000-БЛ', product_type: 'Блок стеновой', length: 400, width: 200, height: 200, weight: 1200, material: 'Сталь 45', quantity: 1, price: 156000, condition: 'new', description: 'Для QF1000' }
+                { id: 2, code: 'F-800-ТП', product_type: 'Тротуарная плитка', length: 200, width: 200, height: 60, weight: 620, material: 'Сталь 40Х', quantity: 2, price: 98000, condition: 'used', description: 'Состояние хорошее' }
             ],
             equipment: {
                 vibro: [
-                    { model: 'QF400', capacity: 800, power: 30, year: 2024, description: 'Компактный вибропресс для малого бизнеса' },
+                    { model: 'QF400', capacity: 800, power: 30, year: 2024, description: 'Компактный вибропресс' },
                     { model: 'QF600', capacity: 1000, power: 37, year: 2024, description: 'Средняя производительность' },
                     { model: 'QF800', capacity: 1200, power: 45, year: 2023, description: 'Популярная модель' },
-                    { model: 'QF1000', capacity: 1400, power: 55, year: 2024, description: 'Высокая производительность' },
-                    { model: 'QF1200', capacity: 1600, power: 75, year: 2024, description: 'Промышленный класс' },
-                    { model: 'QF2000', capacity: 2000, power: 110, year: 2024, description: 'Максимальная производительность' }
+                    { model: 'QF1000', capacity: 1400, power: 55, year: 2024, description: 'Высокая производительность' }
                 ],
                 mixer: [
                     { model: 'JS500', volume: 500, capacity: 25, power: 18.5, year: 2024, description: 'Малый смеситель' },
-                    { model: 'JS750', volume: 750, capacity: 35, power: 30, year: 2024, description: 'Оптимальный для малого бизнеса' },
+                    { model: 'JS750', volume: 750, capacity: 35, power: 30, year: 2024, description: 'Оптимальный' },
                     { model: 'JS1000', volume: 1000, capacity: 50, power: 37, year: 2023, description: 'Стандартная модель' },
-                    { model: 'JS1500', volume: 1500, capacity: 75, power: 55, year: 2024, description: 'Высокая производительность' },
-                    { model: 'JS2000', volume: 2000, capacity: 100, power: 75, year: 2024, description: 'Промышленный смеситель' },
-                    { model: 'JS3000', volume: 3000, capacity: 150, power: 110, year: 2024, description: 'Максимальный объем' }
+                    { model: 'JS1500', volume: 1500, capacity: 75, power: 55, year: 2024, description: 'Высокая производительность' }
                 ]
             },
-            suppliers: [
-                { id: 1, name: 'Qunfeng Machinery China', country: 'CN', city: 'Цюаньчжоу', lead_time: 45, type: 'Основной', contact: 'Li Wei' },
-                { id: 2, name: 'Siemens AG', country: 'DE', city: 'Мюнхен', lead_time: 14, type: 'Электрика', contact: 'Hans Mueller' },
-                { id: 3, name: 'Bosch Rexroth', country: 'DE', city: 'Лор-ам-Майн', lead_time: 21, type: 'Гидравлика', contact: 'Klaus Schmidt' },
-                { id: 4, name: 'Italvibras', country: 'IT', city: 'Милан', lead_time: 18, type: 'Вибраторы', contact: 'Marco Rossi' }
-            ],
             clients: [
-                { id: 1, name: 'СтройБетон ООО', contact: 'Иванов А.П.', phone: '+7 (495) 123-45-67', email: 'info@stroibeton.ru', city: 'Москва', equipment: 'QF800, JS1500', last_order: '2026-03-15', total: 1250000 },
-                { id: 2, name: 'БетонПром Групп', contact: 'Петров С.В.', phone: '+7 (812) 987-65-43', email: 'zakaz@betonprom.ru', city: 'СПб', equipment: 'QF1200', last_order: '2026-03-10', total: 2340000 },
-                { id: 3, name: 'ЖБИ-Комплект', contact: 'Сидоров М.А.', phone: '+7 (383) 456-78-90', email: 'sales@zbi.ru', city: 'Новосибирск', equipment: 'QF600, JS1000', last_order: '2026-02-28', total: 890000 }
+                { id: 1, name: 'СтройБетон ООО', contact: 'Иванов А.П.', phone: '+7 (495) 123-45-67', city: 'Москва', equipment: 'QF800, JS1500', last_order: '2026-03-15', total: 1250000 },
+                { id: 2, name: 'БетонПром Групп', contact: 'Петров С.В.', phone: '+7 (812) 987-65-43', city: 'СПб', equipment: 'QF1200', last_order: '2026-03-10', total: 2340000 }
             ],
-            orders: [
-                { id: 'ORD-2026-001', part_id: 5, client_id: 1, quantity: 2, status: 'delivered', date: '2026-03-10', shipped_date: '2026-03-12', delivered_date: '2026-03-15', total: 190000, notes: 'Срочно' },
-                { id: 'ORD-2026-002', part_id: 1, client_id: 2, quantity: 1, status: 'shipped', date: '2026-03-18', shipped_date: '2026-03-19', delivered_date: null, total: 537600, notes: '' },
-                { id: 'ORD-2026-003', part_id: 3, client_id: 3, quantity: 3, status: 'processing', date: '2026-03-19', shipped_date: null, delivered_date: null, total: 255000, notes: 'Опт' }
-            ],
-            settings: {
-                cny_rate: 12.8,
-                rate_date: '2026-03-20'
-            }
+            orders: []
         };
 
-        let store = JSON.parse(JSON.stringify(defaultData));
-        let currentEditPartId = null;
-        let currentEditStock = 0;
-        let currentEditOrderId = null;
-
-        // Load from storage
-        function loadFromStorage() {
-            try {
-                const saved = localStorage.getItem('qunfeng_inventory_data_v2');
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    store = { ...defaultData, ...parsed };
-                    if (store.settings && store.settings.cny_rate) {
-                        CNY_RATE = store.settings.cny_rate;
-                    }
-                }
-            } catch (e) {
-                console.error('Error loading:', e);
-            }
-        }
-
-        function saveToStorage() {
-            try {
-                store.settings = { cny_rate: CNY_RATE, rate_date: new Date().toISOString().split('T')[0] };
-                localStorage.setItem('qunfeng_inventory_data_v2', JSON.stringify(store));
-                alert('Данные сохранены!');
-            } catch (e) {
-                alert('Ошибка сохранения');
-            }
-        }
-
-        // Currency functions
-        function updateExchangeRate() {
-            // Simulate API call - in real app, fetch from Central Bank API
-            const newRate = (12.5 + Math.random() * 0.6).toFixed(2);
-            CNY_RATE = parseFloat(newRate);
-            document.getElementById('cny-rate').textContent = CNY_RATE;
-            document.getElementById('modal-cny-rate').textContent = CNY_RATE;
-            document.getElementById('rate-date').textContent = new Date().toLocaleDateString('ru-RU');
-            saveToStorage();
-            alert(`Курс обновлен: 1 CNY = ${CNY_RATE} RUB`);
-        }
-
-        function convertCurrency(direction) {
-            const cnyInput = document.getElementById('cny-input');
-            const rubInput = document.getElementById('rub-input');
-            
-            if (direction === 'cny' && cnyInput.value) {
-                rubInput.value = (parseFloat(cnyInput.value) * CNY_RATE).toFixed(2);
-            } else if (direction === 'rub' && rubInput.value) {
-                cnyInput.value = (parseFloat(rubInput.value) / CNY_RATE).toFixed(2);
-            }
-        }
-
-        function convertModalCurrency(direction) {
-            const cnyInput = document.getElementById('modal-cny');
-            const rubInput = document.getElementById('modal-rub');
-            
-            if (direction === 'cny' && cnyInput.value) {
-                rubInput.value = (parseFloat(cnyInput.value) * CNY_RATE).toFixed(2);
-            } else if (direction === 'rub' && rubInput.value) {
-                cnyInput.value = (parseFloat(rubInput.value) / CNY_RATE).toFixed(2);
-            }
-        }
-
-        function setCurrencyAmount(amount) {
-            document.getElementById('modal-cny').value = amount;
-            convertModalCurrency('cny');
-        }
-
-        function calculateRubPrice() {
-            const cnyPrice = parseFloat(document.getElementById('part-price-cny').value) || 0;
-            const autoPrice = Math.round(cnyPrice * CNY_RATE * 1.2); // +20% margin
-            document.getElementById('auto-price-rub').textContent = autoPrice.toLocaleString();
-        }
-
-        // Initialize
+        // Init
         document.addEventListener('DOMContentLoaded', () => {
             loadFromStorage();
-            document.getElementById('cny-rate').textContent = CNY_RATE;
-            document.getElementById('modal-cny-rate').textContent = CNY_RATE;
             updateDashboard();
             renderInventory();
             renderForms();
             renderEquipment();
-            renderSuppliers();
             renderClients();
             renderOrders();
             initChart();
             populateSelects();
             updateModelSelect();
-            setupOrderListeners();
         });
 
+        function loadFromStorage() {
+            try {
+                const saved = localStorage.getItem('qunfeng_data_v3');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    Object.assign(store, parsed);
+                    if (parsed.CNY_RATE) CNY_RATE = parsed.CNY_RATE;
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function saveToStorage() {
+            try {
+                const data = { ...store, CNY_RATE };
+                localStorage.setItem('qunfeng_data_v3', JSON.stringify(data));
+                alert('Данные сохранены!');
+            } catch (e) { alert('Ошибка сохранения'); }
+        }
+
+        // Currency
+        function updateExchangeRate() {
+            CNY_RATE = (12.5 + Math.random() * 0.6).toFixed(2);
+            document.getElementById('cny-rate').textContent = CNY_RATE;
+            document.getElementById('modal-cny-rate').textContent = CNY_RATE;
+            saveToStorage();
+            alert(`Курс обновлен: 1 CNY = ${CNY_RATE} RUB`);
+        }
+
+        function convertCurrency(dir) {
+            const cny = document.getElementById('cny-input');
+            const rub = document.getElementById('rub-input');
+            if (dir === 'cny' && cny.value) rub.value = (parseFloat(cny.value) * CNY_RATE).toFixed(2);
+            else if (dir === 'rub' && rub.value) cny.value = (parseFloat(rub.value) / CNY_RATE).toFixed(2);
+        }
+
+        function convertModalCurrency(dir) {
+            const cny = document.getElementById('modal-cny');
+            const rub = document.getElementById('modal-rub');
+            if (dir === 'cny' && cny.value) rub.value = (parseFloat(cny.value) * CNY_RATE).toFixed(2);
+            else if (dir === 'rub' && rub.value) cny.value = (parseFloat(rub.value) / CNY_RATE).toFixed(2);
+        }
+
+        function calculateRubPrice() {
+            const cny = parseFloat(document.getElementById('part-price-cny').value) || 0;
+            const rub = Math.round(cny * CNY_RATE * 1.2);
+            document.getElementById('auto-price-rub').textContent = rub.toLocaleString();
+        }
+
+        // Navigation
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            sidebar.classList.toggle('open');
-            overlay.classList.toggle('show');
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('overlay').classList.toggle('show');
         }
 
         function switchTab(tab) {
             document.querySelectorAll('[id^="view-"]').forEach(el => el.classList.add('hidden'));
             document.getElementById(`view-${tab}`).classList.remove('hidden');
-            
             document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
             document.getElementById(`nav-${tab}`).classList.add('active');
             
@@ -975,95 +837,105 @@
                 inventory: 'Запчасти',
                 forms: 'Пресс-формы',
                 equipment: 'Оборудование',
-                suppliers: 'Поставщики',
                 clients: 'Клиенты',
                 orders: 'Заказы'
             };
             document.getElementById('page-title').textContent = titles[tab];
+            
+            if (window.innerWidth < 768) toggleSidebar();
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+            document.getElementById(id).classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+            document.getElementById(id).classList.remove('flex');
+            document.body.style.overflow = '';
         }
 
         function updateModelSelect() {
             const type = document.getElementById('part-type-select').value;
-            const select = document.getElementById('part-model-select');
             const models = store.equipment[type].map(e => e.model);
-            select.innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join('');
+            document.getElementById('part-model-select').innerHTML = models.map(m => `<option value="${m}">${m}</option>`).join('');
         }
 
+        function populateSelects() {
+            document.getElementById('supplier-select').innerHTML = store.parts.map(p => `<option value="${p.supplier}">${p.supplier}</option>`).join('');
+            document.getElementById('order-client-select').innerHTML = store.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            document.getElementById('order-part-select').innerHTML = store.parts.map(p => `<option value="${p.id}">${p.sku} - ${p.name} (в наличии: ${p.stock})</option>`).join('');
+        }
+
+        // Dashboard
         function updateDashboard() {
             document.getElementById('total-items').textContent = store.parts.length;
-            const critical = store.parts.filter(p => p.stock <= p.min_stock);
-            document.getElementById('critical-count').textContent = critical.length;
+            document.getElementById('critical-count').textContent = store.parts.filter(p => p.stock <= p.min_stock).length;
+            document.getElementById('active-orders').textContent = store.orders.filter(o => o.status !== 'delivered').length;
             
-            const activeOrders = store.orders.filter(o => o.status !== 'delivered').length;
-            document.getElementById('active-orders').textContent = activeOrders;
+            const revenue = store.orders.filter(o => o.status === 'delivered').reduce((sum, o) => sum + (o.total || 0), 0);
+            document.getElementById('month-revenue').textContent = '₽' + (revenue / 1000000).toFixed(1) + 'M';
             
-            const monthRevenue = store.orders
-                .filter(o => o.status === 'delivered')
-                .reduce((sum, o) => sum + (o.total || 0), 0);
-            document.getElementById('month-revenue').textContent = '₽' + (monthRevenue / 1000000).toFixed(1) + 'M';
-            
-            const alertsList = document.getElementById('alerts-list');
-            alertsList.innerHTML = '';
-            
-            critical.slice(0, 5).forEach(part => {
-                const div = document.createElement('div');
-                div.className = 'flex items-center gap-3 p-3 rounded-lg bg-red-900/20 border border-red-800/50';
-                div.innerHTML = `
-                    <i class="fas fa-exclamation-triangle text-red-400 flex-shrink-0"></i>
-                    <div class="flex-1 min-w-0">
-                        <div class="text-sm font-medium text-red-200 truncate">${part.name}</div>
-                        <div class="text-xs text-red-400">${part.stock} шт (мин: ${part.min_stock})</div>
+            const alerts = document.getElementById('alerts-list');
+            alerts.innerHTML = '';
+            store.parts.filter(p => p.stock <= p.min_stock).slice(0, 5).forEach(part => {
+                alerts.innerHTML += `
+                    <div class="flex items-center gap-3 p-3 rounded-lg bg-red-900/20 border border-red-800/50">
+                        <i class="fas fa-exclamation-triangle text-red-400"></i>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-red-200">${part.name}</div>
+                            <div class="text-xs text-red-400">${part.stock} шт (мин: ${part.min_stock})</div>
+                        </div>
+                        <button onclick="openOrderModal(${part.id})" class="px-3 py-1 rounded bg-red-600 text-white text-xs">Продать</button>
                     </div>
-                    <button onclick="openOrderModal(${part.id})" class="px-3 py-1 rounded bg-red-600 hover:bg-red-500 text-white text-xs flex-shrink-0">Продать</button>
                 `;
-                alertsList.appendChild(div);
             });
         }
 
-        // Inventory with prices
+        // Inventory
         function renderInventory(filter = 'all') {
-            const tbody = document.getElementById('inventory-table');
-            tbody.innerHTML = '';
-            const mobileContainer = document.getElementById('inventory-mobile');
-            mobileContainer.innerHTML = '';
-            
             let parts = store.parts;
             if (filter === 'vibro') parts = parts.filter(p => p.type === 'vibro');
             if (filter === 'mixer') parts = parts.filter(p => p.type === 'mixer');
             if (filter === 'critical') parts = parts.filter(p => p.stock <= p.min_stock);
             
+            const tbody = document.getElementById('inventory-table');
+            const mobile = document.getElementById('inventory-mobile');
+            tbody.innerHTML = '';
+            mobile.innerHTML = '';
+            
             parts.forEach(part => {
                 const status = part.stock === 0 ? 'danger' : part.stock <= part.min_stock ? 'warning' : 'success';
                 const statusText = part.stock === 0 ? 'Нет' : part.stock <= part.min_stock ? 'Низкий' : 'OK';
-                const statusColor = part.stock === 0 ? 'text-red-400' : part.stock <= part.min_stock ? 'text-yellow-400' : 'text-green-400';
                 
                 tbody.innerHTML += `
                     <tr class="table-row border-b border-slate-700/50">
-                        <td class="px-3 py-4 font-mono text-blue-400 text-sm">${part.sku}</td>
-                        <td class="px-3 py-4">
+                        <td class="px-3 py-3 font-mono text-blue-400 text-sm">${part.sku}</td>
+                        <td class="px-3 py-3">
                             <div class="font-medium text-sm">${part.name}</div>
                             <div class="text-xs text-slate-500">${part.category}</div>
                         </td>
-                        <td class="px-3 py-4"><span class="px-2 py-1 rounded bg-slate-700 text-xs">${part.model}</span></td>
-                        <td class="px-3 py-4 text-center">
+                        <td class="px-3 py-3"><span class="px-2 py-1 rounded bg-slate-700 text-xs">${part.model}</span></td>
+                        <td class="px-3 py-3 text-center">
                             <div class="flex items-center justify-center gap-2">
-                                <button onclick="quickStockChange(${part.id}, -1)" class="qty-btn qty-minus text-xs"><i class="fas fa-minus"></i></button>
-                                <span class="text-lg font-bold ${statusColor} w-8 text-center">${part.stock}</span>
-                                <button onclick="quickStockChange(${part.id}, 1)" class="qty-btn qty-plus text-xs"><i class="fas fa-plus"></i></button>
+                                <button onclick="quickStockChange(${part.id}, -1)" class="qty-btn qty-minus"><i class="fas fa-minus"></i></button>
+                                <span class="text-lg font-bold w-8 text-center ${part.stock <= part.min_stock ? 'text-red-400' : 'text-green-400'}">${part.stock}</span>
+                                <button onclick="quickStockChange(${part.id}, 1)" class="qty-btn qty-plus"><i class="fas fa-plus"></i></button>
                             </div>
                         </td>
-                        <td class="px-3 py-4 text-right text-yellow-400">${part.price_cny > 0 ? '¥' + part.price_cny.toLocaleString() : '-'}</td>
-                        <td class="px-3 py-4 text-right text-green-400 font-bold">₽${part.price ? part.price.toLocaleString() : '0'}</td>
-                        <td class="px-3 py-4"><span class="badge badge-${status}">${statusText}</span></td>
-                        <td class="px-3 py-4">
-                            <button onclick="editPart(${part.id})" class="text-blue-400 hover:text-blue-300 mr-2" title="Редактировать"><i class="fas fa-edit"></i></button>
-                            <button onclick="openOrderModal(${part.id})" class="text-green-400 hover:text-green-300 mr-2" title="Продать"><i class="fas fa-shopping-cart"></i></button>
-                            <button onclick="deletePart(${part.id})" class="text-red-400 hover:text-red-300" title="Удалить"><i class="fas fa-trash"></i></button>
+                        <td class="px-3 py-3 text-right text-green-400 font-bold">₽${part.price ? part.price.toLocaleString() : '0'}</td>
+                        <td class="px-3 py-3"><span class="badge badge-${status}">${statusText}</span></td>
+                        <td class="px-3 py-3">
+                            <button onclick="editPart(${part.id})" class="text-blue-400 hover:text-blue-300 mr-2"><i class="fas fa-edit"></i></button>
+                            <button onclick="openOrderModal(${part.id})" class="text-green-400 hover:text-green-300 mr-2"><i class="fas fa-shopping-cart"></i></button>
+                            <button onclick="deletePart(${part.id})" class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
                 `;
                 
-                mobileContainer.innerHTML += `
+                mobile.innerHTML += `
                     <div class="mobile-table-card">
                         <div class="flex justify-between items-start mb-2">
                             <div class="font-mono text-blue-400 text-sm">${part.sku}</div>
@@ -1073,19 +945,17 @@
                         <div class="text-xs text-slate-500 mb-2">${part.category} | ${part.model}</div>
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-slate-400">Цена:</span>
-                            <div class="text-right">
-                                ${part.price_cny > 0 ? `<div class="text-yellow-400 text-sm">¥${part.price_cny.toLocaleString()}</div>` : ''}
-                                <div class="text-green-400 font-bold">₽${part.price ? part.price.toLocaleString() : '0'}</div>
-                            </div>
+                            <span class="text-green-400 font-bold">₽${part.price ? part.price.toLocaleString() : '0'}</span>
                         </div>
                         <div class="flex items-center justify-between bg-slate-800/50 rounded-lg p-2 mb-2">
-                            <button onclick="quickStockChange(${part.id}, -1)" class="qty-btn qty-minus text-xs"><i class="fas fa-minus"></i></button>
-                            <span class="${statusColor} font-bold text-lg">${part.stock} шт</span>
-                            <button onclick="quickStockChange(${part.id}, 1)" class="qty-btn qty-plus text-xs"><i class="fas fa-plus"></i></button>
+                            <button onclick="quickStockChange(${part.id}, -1)" class="qty-btn qty-minus"><i class="fas fa-minus"></i></button>
+                            <span class="font-bold text-lg ${part.stock <= part.min_stock ? 'text-red-400' : 'text-green-400'}">${part.stock} шт</span>
+                            <button onclick="quickStockChange(${part.id}, 1)" class="qty-btn qty-plus"><i class="fas fa-plus"></i></button>
                         </div>
                         <div class="flex gap-2">
                             <button onclick="editPart(${part.id})" class="flex-1 py-2 rounded bg-blue-600/20 text-blue-400 text-sm"><i class="fas fa-edit mr-1"></i>Изм.</button>
                             <button onclick="openOrderModal(${part.id})" class="flex-1 py-2 rounded bg-green-600/20 text-green-400 text-sm"><i class="fas fa-shopping-cart mr-1"></i>Прод.</button>
+                            <button onclick="deletePart(${part.id})" class="px-3 py-2 rounded bg-red-600/20 text-red-400 text-sm"><i class="fas fa-trash"></i></button>
                         </div>
                     </div>
                 `;
@@ -1094,14 +964,11 @@
 
         function quickStockChange(partId, delta) {
             const part = store.parts.find(p => p.id === partId);
-            if (part) {
-                const newStock = part.stock + delta;
-                if (newStock >= 0) {
-                    part.stock = newStock;
-                    renderInventory();
-                    updateDashboard();
-                    saveToStorage();
-                }
+            if (part && part.stock + delta >= 0) {
+                part.stock += delta;
+                renderInventory();
+                updateDashboard();
+                saveToStorage();
             }
         }
 
@@ -1112,7 +979,7 @@
             document.getElementById('part-modal-title').textContent = 'Редактировать запчасть';
             document.getElementById('edit-part-id').value = partId;
             
-            const form = document.querySelector('#part-modal form');
+            const form = document.getElementById('part-form');
             form.name.value = part.name;
             form.sku.value = part.sku;
             form.type.value = part.type;
@@ -1135,28 +1002,26 @@
             const form = e.target;
             const editId = parseInt(document.getElementById('edit-part-id').value);
             
-            const partData = {
+            const data = {
                 name: form.name.value,
                 sku: form.sku.value,
                 type: form.type.value,
                 model: form.model.value,
                 category: form.category.value,
-                stock: parseInt(form.stock.value),
-                min_stock: parseInt(form.min_stock.value),
+                stock: parseInt(form.stock.value) || 0,
+                min_stock: parseInt(form.min_stock.value) || 0,
                 price_cny: parseFloat(form.price_cny.value) || 0,
                 price: parseInt(form.price.value) || 0,
                 supplier: form.supplier.value,
-                lead_time: parseInt(form.lead_time.value)
+                lead_time: parseInt(form.lead_time.value) || 45
             };
             
             if (editId) {
                 const idx = store.parts.findIndex(p => p.id === editId);
-                if (idx !== -1) {
-                    store.parts[idx] = { ...store.parts[idx], ...partData };
-                }
+                if (idx !== -1) store.parts[idx] = { ...store.parts[idx], ...data };
             } else {
-                partData.id = store.parts.length + 1;
-                store.parts.push(partData);
+                data.id = store.parts.length ? Math.max(...store.parts.map(p => p.id)) + 1 : 1;
+                store.parts.push(data);
             }
             
             closeModal('part-modal');
@@ -1164,34 +1029,39 @@
             updateDashboard();
             populateSelects();
             saveToStorage();
-            
-            alert(editId ? 'Запчасть обновлена!' : 'Запчасть добавлена!');
+            alert(editId ? 'Обновлено!' : 'Добавлено!');
             form.reset();
             document.getElementById('edit-part-id').value = '';
             document.getElementById('part-modal-title').textContent = 'Добавить запчасть';
         }
 
-        // Forms management
+        function deletePart(id) {
+            if (!confirm('Удалить запчасть?')) return;
+            store.parts = store.parts.filter(p => p.id !== id);
+            renderInventory();
+            updateDashboard();
+            saveToStorage();
+        }
+
+        // Forms
         function renderForms() {
             const tbody = document.getElementById('forms-table');
-            tbody.innerHTML = '';
             const mobile = document.getElementById('forms-mobile');
+            tbody.innerHTML = '';
             mobile.innerHTML = '';
             
             store.forms.forEach(form => {
-                const conditionBadge = form.condition === 'new' ? 'badge-success' : form.condition === 'used' ? 'badge-warning' : 'badge-info';
-                const conditionText = form.condition === 'new' ? 'Новая' : form.condition === 'used' ? 'Б/у' : 'Восст.';
+                const condBadge = form.condition === 'new' ? 'badge-success' : form.condition === 'used' ? 'badge-warning' : 'badge-info';
+                const condText = form.condition === 'new' ? 'Новая' : form.condition === 'used' ? 'Б/у' : 'Восст.';
                 
                 tbody.innerHTML += `
                     <tr class="table-row border-b border-slate-700/50">
-                        <td class="px-4 py-4 font-mono text-purple-400">${form.code}</td>
-                        <td class="px-4 py-4">${form.product_type}</td>
-                        <td class="px-4 py-4 text-sm text-slate-400">${form.length}×${form.width}×${form.height}</td>
-                        <td class="px-4 py-4">${form.weight} кг</td>
-                        <td class="px-4 py-4 text-center"><span class="badge ${conditionBadge}">${conditionText}</span></td>
-                        <td class="px-4 py-4 text-center font-bold">${form.quantity}</td>
-                        <td class="px-4 py-4 text-right text-green-400 font-bold">₽${form.price.toLocaleString()}</td>
-                        <td class="px-4 py-4">
+                        <td class="px-4 py-3 font-mono text-purple-400">${form.code}</td>
+                        <td class="px-4 py-3">${form.product_type}</td>
+                        <td class="px-4 py-3 text-sm text-slate-400">${form.length}×${form.width}×${form.height}</td>
+                        <td class="px-4 py-3 text-center font-bold">${form.quantity}</td>
+                        <td class="px-4 py-3 text-right text-green-400 font-bold">₽${form.price.toLocaleString()}</td>
+                        <td class="px-4 py-3">
                             <button onclick="editForm(${form.id})" class="text-blue-400 hover:text-blue-300 mr-2"><i class="fas fa-edit"></i></button>
                             <button onclick="deleteForm(${form.id})" class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
                         </td>
@@ -1202,17 +1072,13 @@
                     <div class="mobile-table-card">
                         <div class="flex justify-between items-start mb-2">
                             <div class="font-mono text-purple-400 font-bold">${form.code}</div>
-                            <span class="badge ${conditionBadge}">${conditionText}</span>
+                            <span class="badge ${condBadge}">${condText}</span>
                         </div>
                         <div class="font-medium mb-1">${form.product_type}</div>
-                        <div class="text-xs text-slate-500 mb-2">${form.length}×${form.width}×${form.height} мм • ${form.weight} кг • ${form.material}</div>
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-slate-400">В наличии:</span>
-                            <span class="font-bold text-lg">${form.quantity} шт</span>
-                        </div>
+                        <div class="text-xs text-slate-500 mb-2">${form.length}×${form.width}×${form.height} мм</div>
                         <div class="flex justify-between items-center mb-3">
-                            <span class="text-slate-400">Цена:</span>
-                            <span class="text-green-400 font-bold text-lg">₽${form.price.toLocaleString()}</span>
+                            <span class="text-slate-400">${form.quantity} шт</span>
+                            <span class="text-green-400 font-bold">₽${form.price.toLocaleString()}</span>
                         </div>
                         <div class="flex gap-2">
                             <button onclick="editForm(${form.id})" class="flex-1 py-2 rounded bg-blue-600/20 text-blue-400 text-sm">Изменить</button>
@@ -1223,115 +1089,211 @@
             });
         }
 
+        function editForm(formId) {
+            const form = store.forms.find(f => f.id === formId);
+            if (!form) return;
+            
+            document.getElementById('form-modal-title').textContent = 'Редактировать форму';
+            document.getElementById('edit-form-id').value = formId;
+            
+            const f = document.getElementById('form-form');
+            f.code.value = form.code;
+            f.product_type.value = form.product_type;
+            f.length.value = form.length;
+            f.width.value = form.width;
+            f.height.value = form.height;
+            f.weight.value = form.weight;
+            f.quantity.value = form.quantity;
+            f.price.value = form.price;
+            f.condition.value = form.condition;
+            
+            openModal('form-modal');
+        }
+
         function saveForm(e) {
             e.preventDefault();
-            const form = e.target;
-            const newForm = {
-                id: store.forms.length + 1,
-                code: form.code.value,
-                product_type: form.product_type.value,
-                length: parseInt(form.length.value) || 0,
-                width: parseInt(form.width.value) || 0,
-                height: parseInt(form.height.value) || 0,
-                weight: parseInt(form.weight.value) || 0,
-                material: form.material.value,
-                quantity: parseInt(form.quantity.value) || 1,
-                price: parseInt(form.price.value) || 0,
-                condition: form.condition.value,
-                description: form.description.value
+            const f = e.target;
+            const editId = parseInt(document.getElementById('edit-form-id').value);
+            
+            const data = {
+                code: f.code.value,
+                product_type: f.product_type.value,
+                length: parseInt(f.length.value) || 0,
+                width: parseInt(f.width.value) || 0,
+                height: parseInt(f.height.value) || 0,
+                weight: parseInt(f.weight.value) || 0,
+                quantity: parseInt(f.quantity.value) || 0,
+                price: parseInt(f.price.value) || 0,
+                condition: f.condition.value,
+                material: 'Сталь 45'
             };
-            store.forms.push(newForm);
+            
+            if (editId) {
+                const idx = store.forms.findIndex(x => x.id === editId);
+                if (idx !== -1) store.forms[idx] = { ...store.forms[idx], ...data };
+            } else {
+                data.id = store.forms.length ? Math.max(...store.forms.map(x => x.id)) + 1 : 1;
+                store.forms.push(data);
+            }
+            
             closeModal('form-modal');
             renderForms();
             saveToStorage();
-            alert(`Форма ${newForm.code} добавлена!`);
-            form.reset();
+            alert(editId ? 'Форма обновлена!' : 'Форма добавлена!');
+            f.reset();
+            document.getElementById('edit-form-id').value = '';
+            document.getElementById('form-modal-title').textContent = 'Добавить пресс-форму';
         }
 
         function deleteForm(id) {
-            if (confirm('Удалить форму?')) {
-                store.forms = store.forms.filter(f => f.id !== id);
-                renderForms();
-                saveToStorage();
-            }
+            if (!confirm('Удалить форму?')) return;
+            store.forms = store.forms.filter(f => f.id !== id);
+            renderForms();
+            saveToStorage();
         }
 
-        // Orders with status management
+        // Equipment
+        function renderEquipment() {
+            document.getElementById('vibro-list').innerHTML = store.equipment.vibro.map(eq => `
+                <div class="p-3 rounded-lg bg-slate-800/50 border border-slate-700">
+                    <div class="flex justify-between items-center">
+                        <div class="font-bold text-blue-400">${eq.model}</div>
+                        <span class="text-xs text-slate-500">${eq.year}</span>
+                    </div>
+                    <div class="text-xs text-slate-400 mt-1">${eq.capacity} цикл/час • ${eq.power} кВт</div>
+                </div>
+            `).join('');
+            
+            document.getElementById('mixer-list').innerHTML = store.equipment.mixer.map(eq => `
+                <div class="p-3 rounded-lg bg-slate-800/50 border border-slate-700">
+                    <div class="flex justify-between items-center">
+                        <div class="font-bold text-purple-400">${eq.model}</div>
+                        <span class="text-xs text-slate-500">${eq.year}</span>
+                    </div>
+                    <div class="text-xs text-slate-400 mt-1">${eq.volume}л • ${eq.capacity} м³/ч</div>
+                </div>
+            `).join('');
+        }
+
+        function saveEquipment(e, type) {
+            e.preventDefault();
+            const f = e.target;
+            const data = {
+                model: f.model.value,
+                year: parseInt(f.year.value),
+                description: f.description.value,
+                capacity: parseInt(f.capacity.value) || 0,
+                power: parseFloat(f.power.value) || 0
+            };
+            if (type === 'mixer') data.volume = parseInt(f.volume.value) || 0;
+            
+            store.equipment[type].push(data);
+            store.equipment[type].sort((a, b) => a.model.localeCompare(b.model));
+            
+            closeModal(type === 'vibro' ? 'vibro-modal' : 'mixer-modal');
+            renderEquipment();
+            updateModelSelect();
+            saveToStorage();
+            alert('Добавлено!');
+            f.reset();
+        }
+
+        // Clients
+        function renderClients() {
+            document.getElementById('clients-table').innerHTML = store.clients.map(c => `
+                <tr class="table-row border-b border-slate-700/50">
+                    <td class="px-6 py-3">
+                        <div class="font-medium">${c.name}</div>
+                        <div class="text-xs text-slate-500">${c.city}</div>
+                    </td>
+                    <td class="px-6 py-3">${c.contact}</td>
+                    <td class="px-6 py-3 text-slate-400">${c.phone}</td>
+                    <td class="px-6 py-3">
+                        <button onclick="deleteClient(${c.id})" class="text-red-400 hover:text-red-300"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            document.getElementById('clients-mobile').innerHTML = store.clients.map(c => `
+                <div class="mobile-table-card">
+                    <div class="font-medium mb-1">${c.name}</div>
+                    <div class="text-sm text-slate-400 mb-1">${c.contact}</div>
+                    <div class="text-xs text-slate-500 mb-2">${c.phone}</div>
+                    <button onclick="deleteClient(${c.id})" class="w-full py-2 rounded bg-red-600/20 text-red-400 text-sm">Удалить</button>
+                </div>
+            `).join('');
+        }
+
+        function saveClient(e) {
+            e.preventDefault();
+            const f = e.target;
+            const data = {
+                id: store.clients.length ? Math.max(...store.clients.map(c => c.id)) + 1 : 1,
+                name: f.name.value,
+                contact: f.contact.value,
+                phone: f.phone.value,
+                city: f.city.value,
+                equipment: f.equipment.value,
+                last_order: '-',
+                total: 0
+            };
+            store.clients.push(data);
+            closeModal('client-modal');
+            renderClients();
+            populateSelects();
+            saveToStorage();
+            alert('Клиент добавлен!');
+            f.reset();
+        }
+
+        function deleteClient(id) {
+            if (!confirm('Удалить клиента?')) return;
+            store.clients = store.clients.filter(c => c.id !== id);
+            renderClients();
+            populateSelects();
+            saveToStorage();
+        }
+
+        // Orders
         function renderOrders(filter = 'all') {
             const container = document.getElementById('orders-list');
-            const emptyDiv = document.getElementById('orders-empty');
+            const empty = document.getElementById('orders-empty');
             container.innerHTML = '';
             
             let orders = [...store.orders].sort((a, b) => new Date(b.date) - new Date(a.date));
-            
-            if (filter === 'new') orders = orders.filter(o => o.status === 'new');
-            else if (filter === 'processing') orders = orders.filter(o => o.status === 'processing');
-            else if (filter === 'shipped') orders = orders.filter(o => o.status === 'shipped');
-            else if (filter === 'delivered') orders = orders.filter(o => o.status === 'delivered');
+            if (filter !== 'all') orders = orders.filter(o => o.status === filter);
             
             if (orders.length === 0) {
-                emptyDiv.classList.remove('hidden');
+                empty.classList.remove('hidden');
                 return;
             }
-            emptyDiv.classList.add('hidden');
+            empty.classList.add('hidden');
             
             orders.forEach(order => {
                 const part = store.parts.find(p => p.id === order.part_id);
                 const client = store.clients.find(c => c.id === order.client_id);
                 
-                const statusColors = {
-                    new: 'blue',
-                    processing: 'yellow',
-                    shipped: 'purple',
-                    delivered: 'green'
-                };
-                const statusTexts = {
-                    new: 'Принят в работу',
-                    processing: 'В обработке',
-                    shipped: 'Отгружен',
-                    delivered: 'Доставлен'
-                };
-                const statusIcons = {
-                    new: 'fa-inbox',
-                    processing: 'fa-cogs',
-                    shipped: 'fa-shipping-fast',
-                    delivered: 'fa-check-circle'
-                };
-                
-                const color = statusColors[order.status];
+                const colors = { new: 'blue', processing: 'yellow', shipped: 'purple', delivered: 'green' };
+                const texts = { new: 'Принят', processing: 'В работе', shipped: 'Отгружен', delivered: 'Доставлен' };
+                const color = colors[order.status];
                 
                 container.innerHTML += `
                     <div class="glass rounded-lg p-4 border-l-4 border-${color}-500">
-                        <div class="flex flex-col md:flex-row justify-between items-start gap-3 mb-3">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span class="font-bold text-lg text-${color}-400">${order.id}</span>
-                                    <span class="badge badge-${color}">${statusTexts[order.status]}</span>
-                                </div>
-                                <div class="text-white font-medium">${part ? part.name : 'Unknown'}</div>
-                                <div class="text-sm text-slate-400">Клиент: ${client ? client.name : 'Unknown'}</div>
-                                ${order.notes ? `<div class="text-xs text-slate-500 mt-1"><i class="fas fa-comment-alt mr-1"></i>${order.notes}</div>` : ''}
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <div class="font-bold text-${color}-400">${order.id}</div>
+                                <div class="text-white text-sm">${part ? part.name : 'Unknown'}</div>
+                                <div class="text-xs text-slate-400">Клиент: ${client ? client.name : 'Unknown'}</div>
                             </div>
                             <div class="text-right">
                                 <div class="text-xl font-bold text-white">₽${order.total ? order.total.toLocaleString() : '0'}</div>
-                                <div class="text-sm text-slate-400">${order.quantity} шт</div>
+                                <div class="text-xs text-slate-400">${order.quantity} шт</div>
                             </div>
                         </div>
-                        
-                        <div class="status-timeline mb-3 text-xs">
-                            <div class="status-step ${order.status === 'new' || order.status === 'processing' || order.status === 'shipped' || order.status === 'delivered' ? 'completed' : ''}">
-                                <span class="text-slate-400">Создан: ${order.date}</span>
-                            </div>
-                            ${order.shipped_date ? `<div class="status-step completed"><span class="text-slate-400">Отгружен: ${order.shipped_date}</span></div>` : '<div class="status-step"><span class="text-slate-600">В пути к клиенту</span></div>'}
-                            ${order.delivered_date ? `<div class="status-step completed"><span class="text-slate-400">Доставлен: ${order.delivered_date}</span></div>` : ''}
-                        </div>
-                        
-                        <div class="flex gap-2 pt-3 border-t border-slate-700">
-                            <button onclick="openStatusModal('${order.id}')" class="flex-1 py-2 rounded bg-${color}-600/20 text-${color}-400 text-sm hover:bg-${color}-600/30">
-                                <i class="fas fa-exchange-alt mr-1"></i> Изменить статус
-                            </button>
-                            <button onclick="deleteOrder('${order.id}')" class="px-3 py-2 rounded bg-red-600/20 text-red-400 text-sm hover:bg-red-600/30">
-                                <i class="fas fa-trash"></i>
+                        <div class="flex justify-between items-center pt-2 border-t border-slate-700">
+                            <span class="badge badge-${color}">${texts[order.status]}</span>
+                            <button onclick="openStatusModal('${order.id}')" class="text-sm text-blue-400 hover:text-blue-300">
+                                <i class="fas fa-exchange-alt mr-1"></i>Изменить статус
                             </button>
                         </div>
                     </div>
@@ -1339,163 +1301,119 @@
             });
         }
 
+        function openOrderModal(partId) {
+            populateSelects();
+            if (partId) {
+                document.getElementById('order-part-select').value = partId;
+                updateOrderPart();
+            }
+            openModal('order-modal');
+        }
+
+        function updateOrderPart() {
+            const partId = parseInt(document.getElementById('order-part-select').value);
+            const part = store.parts.find(p => p.id === partId);
+            if (part) {
+                document.getElementById('order-available').textContent = part.stock + ' шт';
+                document.getElementById('order-price').textContent = '₽' + (part.price || 0).toLocaleString();
+                calculateOrderTotal();
+            }
+        }
+
+        function updateOrderClient() {
+            // Can add client-specific logic here
+        }
+
+        function calculateOrderTotal() {
+            const partId = parseInt(document.getElementById('order-part-select').value);
+            const qty = parseInt(document.getElementById('order-quantity').value) || 0;
+            const part = store.parts.find(p => p.id === partId);
+            if (part) {
+                document.getElementById('order-total').textContent = '₽' + ((part.price || 0) * qty).toLocaleString();
+            }
+        }
+
+        function saveOrder(e) {
+            e.preventDefault();
+            const partId = parseInt(document.getElementById('order-part-select').value);
+            const clientId = parseInt(document.getElementById('order-client-select').value);
+            const quantity = parseInt(document.getElementById('order-quantity').value) || 0;
+            
+            const part = store.parts.find(p => p.id === partId);
+            const client = store.clients.find(c => c.id === clientId);
+            
+            if (!part || !client) {
+                alert('Выберите запчасть и клиента');
+                return;
+            }
+            
+            if (part.stock < quantity) {
+                alert(`Недостаточно! Доступно: ${part.stock}, нужно: ${quantity}`);
+                return;
+            }
+            
+            // Уменьшаем остаток на складе
+            part.stock -= quantity;
+            
+            const total = (part.price || 0) * quantity;
+            const order = {
+                id: 'ORD-' + Date.now(),
+                part_id: partId,
+                client_id: clientId,
+                quantity: quantity,
+                total: total,
+                status: 'new',
+                date: new Date().toISOString().split('T')[0],
+                notes: e.target.notes.value
+            };
+            
+            store.orders.push(order);
+            client.last_order = order.date;
+            client.total += total;
+            
+            closeModal('order-modal');
+            renderInventory(); // Обновляем остатки
+            renderOrders();
+            renderClients();
+            updateDashboard();
+            saveToStorage();
+            
+            alert(`Заказ ${order.id} создан!\nСписано со склада: ${part.name} ${quantity} шт\nОстаток: ${part.stock} шт`);
+            e.target.reset();
+        }
+
         function openStatusModal(orderId) {
             currentEditOrderId = orderId;
-            const order = store.orders.find(o => o.id === orderId);
-            const client = store.clients.find(c => c.id === order.client_id);
-            
             document.getElementById('status-order-id').textContent = orderId;
-            document.getElementById('status-client-name').textContent = client ? client.name : 'Unknown';
-            
-            // Highlight current status
-            ['new', 'processing', 'shipped', 'delivered'].forEach(s => {
-                const btn = document.getElementById('btn-status-' + s);
-                if (s === order.status) {
-                    btn.classList.add('border-' + (s === 'new' ? 'blue' : s === 'processing' ? 'yellow' : s === 'shipped' ? 'purple' : 'green') + '-500');
-                    btn.classList.add('bg-slate-700');
-                } else {
-                    btn.classList.remove('border-blue-500', 'border-yellow-500', 'border-purple-500', 'border-green-500', 'bg-slate-700');
-                }
-            });
-            
             openModal('order-status-modal');
         }
 
-        function setOrderStatus(newStatus) {
+        function setOrderStatus(status) {
             const order = store.orders.find(o => o.id === currentEditOrderId);
             if (!order) return;
             
-            order.status = newStatus;
-            
-            if (newStatus === 'shipped' && !order.shipped_date) {
-                order.shipped_date = new Date().toISOString().split('T')[0];
-            }
-            if (newStatus === 'delivered' && !order.delivered_date) {
-                order.delivered_date = new Date().toISOString().split('T')[0];
-            }
+            order.status = status;
+            if (status === 'shipped') order.shipped_date = new Date().toISOString().split('T')[0];
+            if (status === 'delivered') order.delivered_date = new Date().toISOString().split('T')[0];
             
             closeModal('order-status-modal');
             renderOrders();
             updateDashboard();
             saveToStorage();
-            
-            const statusTexts = { new: 'Принят в работу', processing: 'В обработке', shipped: 'Отгружен', delivered: 'Доставлен' };
-            alert(`Статус заказа ${currentEditOrderId} изменен на: ${statusTexts[newStatus]}`);
-        }
-
-        function deleteOrder(orderId) {
-            if (confirm('Удалить заказ?')) {
-                store.orders = store.orders.filter(o => o.id !== orderId);
-                renderOrders();
-                updateDashboard();
-                saveToStorage();
-            }
         }
 
         function filterOrders(filter) {
             renderOrders(filter);
         }
 
-        function saveOrder(e) {
-            e.preventDefault();
-            const form = e.target;
-            const partId = parseInt(form.part.value);
-            const clientId = parseInt(form.client.value);
-            const quantity = parseInt(form.quantity.value);
-            const part = store.parts.find(p => p.id === partId);
-            const client = store.clients.find(c => c.id === clientId);
-            
-            if (!part || !client) {
-                alert('Ошибка: выберите запчасть и клиента');
-                return;
-            }
-            
-            if (part.stock < quantity) {
-                alert(`Недостаточно запасов! Доступно: ${part.stock}, требуется: ${quantity}`);
-                return;
-            }
-            
-            // Update stock
-            part.stock -= quantity;
-            
-            // Create order
-            const orderId = 'ORD-' + new Date().getFullYear() + '-' + String(store.orders.length + 1).padStart(3, '0');
-            const total = quantity * (part.price || 0);
-            
-            const newOrder = {
-                id: orderId,
-                part_id: partId,
-                client_id: clientId,
-                quantity: quantity,
-                status: 'new',
-                date: new Date().toISOString().split('T')[0],
-                shipped_date: null,
-                delivered_date: null,
-                total: total,
-                notes: form.notes.value
-            };
-            
-            store.orders.push(newOrder);
-            
-            // Update client
-            client.last_order = newOrder.date;
-            client.total += total;
-            
-            closeModal('order-modal');
-            renderInventory();
-            renderOrders();
-            renderClients();
-            updateDashboard();
-            saveToStorage();
-            
-            alert(`Заказ ${orderId} создан!\n${part.name} x${quantity}\nКлиент: ${client.name}\nСумма: ₽${total.toLocaleString()}`);
-            form.reset();
-        }
-
-        // Other functions (equipment, suppliers, clients) remain similar...
-        // Include them as needed or keep from previous version
-
-        function openModal(id) {
-            document.getElementById(id).classList.remove('hidden');
-            document.getElementById(id).classList.add('flex');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-            document.getElementById(id).classList.remove('flex');
-            document.body.style.overflow = '';
-        }
-
-        function populateSelects() {
-            const supSelect = document.getElementById('supplier-select');
-            if (supSelect) supSelect.innerHTML = store.suppliers.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
-            
-            const clientSelect = document.getElementById('client-select');
-            if (clientSelect) clientSelect.innerHTML = store.clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-            
-            const partSelect = document.getElementById('part-select');
-            if (partSelect) partSelect.innerHTML = store.parts.map(p => `<option value="${p.id}">${p.sku} - ${p.name} (${p.stock} шт)</option>`).join('');
-        }
-
-        function setupOrderListeners() {
-            const partSelect = document.getElementById('part-select');
-            if (partSelect) {
-                partSelect.addEventListener('change', () => {
-                    const partId = parseInt(partSelect.value);
-                    const part = store.parts.find(p => p.id === partId);
-                    if (part) {
-                        document.getElementById('available-stock').textContent = part.stock + ' шт';
-                        document.getElementById('part-price').textContent = '₽' + (part.price || 0).toLocaleString();
-                    }
-                });
-            }
+        // Utils
+        function filterInventory(type) {
+            renderInventory(type);
         }
 
         function initChart() {
             const ctx = document.getElementById('stockChart');
             if (!ctx) return;
-            
             new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -1507,34 +1425,24 @@
                         backgroundColor: 'rgba(96, 165, 250, 0.1)',
                         tension: 0.4,
                         fill: true
-                    }, {
-                        label: 'Продажи',
-                        data: [28, 48, 40, 19, 86, 27],
-                        borderColor: '#34d399',
-                        backgroundColor: 'rgba(52, 211, 153, 0.1)',
-                        tension: 0.4,
-                        fill: true
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { labels: { color: '#94a3b8', font: { size: 10 } } }
-                    },
+                    plugins: { legend: { labels: { color: '#94a3b8' } } },
                     scales: {
-                        y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
-                        x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+                        y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8' } }
                     }
                 }
             });
         }
 
-        window.onclick = function(event) {
-            if (event.target.classList.contains('fixed')) {
-                closeModal(event.target.id);
-            }
-        }
+        window.onclick = function(e) {
+            if (e.target.classList.contains('fixed')) closeModal(e.target.id);
+        };
     </script>
 </body>
 </html>
+      
