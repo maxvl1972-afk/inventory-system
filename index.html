@@ -94,6 +94,40 @@
 </head>
 <body class="antialiased">
 
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="fixed inset-0 bg-slate-900 z-[100] flex items-center justify-center">
+        <div class="glass rounded-xl p-8 w-full max-w-md mx-4">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold gradient-text mb-2">QUNFENG</h1>
+                <p class="text-slate-400">Service Department</p>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm text-slate-400 mb-2">Введите пароль</label>
+                    <input type="password" id="login-password" 
+                        class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white text-center text-xl tracking-widest focus:border-blue-500 focus:outline-none" 
+                        placeholder="••••" maxlength="4">
+                </div>
+
+                <div id="login-error" class="text-red-400 text-sm text-center hidden">
+                    <i class="fas fa-exclamation-circle mr-1"></i> Неверный пароль
+                </div>
+
+                <button onclick="checkLogin()" 
+                    class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors">
+                    <i class="fas fa-lock mr-2"></i> Войти
+                </button>
+            </div>
+
+            <div class="mt-6 text-center text-xs text-slate-500">
+                <p>Забыли пароль? Обратитесь к администратору</p>
+            </div>
+        </div>
+    </div>
+
+
+
     <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
 
     <div class="flex h-screen flex-col md:flex-row">
@@ -733,7 +767,50 @@
 
     <script>
 
-        // Data
+        
+        // Login functions
+        function checkLogin() {
+            const password = document.getElementById('login-password').value;
+            const errorDiv = document.getElementById('login-error');
+
+            if (password === '1972') {
+                // Correct password - hide login overlay
+                document.getElementById('login-overlay').style.display = 'none';
+                // Save to session
+                sessionStorage.setItem('qunfeng_auth', 'true');
+            } else {
+                // Wrong password - show error
+                errorDiv.classList.remove('hidden');
+                document.getElementById('login-password').value = '';
+                document.getElementById('login-password').focus();
+            }
+        }
+
+        // Check if already logged in (on page load)
+        function checkAuth() {
+            if (sessionStorage.getItem('qunfeng_auth') === 'true') {
+                const overlay = document.getElementById('login-overlay');
+                if (overlay) {
+                    overlay.style.display = 'none';
+                }
+            }
+        }
+
+        // Allow Enter key to submit
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('login-password');
+            if (passwordInput) {
+                passwordInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        checkLogin();
+                    }
+                });
+            }
+            // Check auth status
+            checkAuth();
+        });
+
+// Data
         let CNY_RATE = 12.8;
         let currentEditPartId = null;
         let currentEditFormId = null;
@@ -1556,52 +1633,64 @@
         }
 
         // Excel Export Functions
+        // Export data to Excel - creates workbook from current data
         function exportReportToExcel() {
             const workbook = XLSX.utils.book_new();
+            const dateStr = new Date().toISOString().split('T')[0];
 
-            // Sheet 1: Inventory Report
-            const inventoryData = store.parts.map(part => ({
-                'Артикул': part.sku,
-                'Наименование': part.name,
-                'Тип': part.type === 'vibro' ? 'Вибропресс' : 'Смеситель',
-                'Модель': part.model,
-                'Категория': part.category,
-                'На складе': part.stock,
-                'Мин. запас': part.min_stock,
-                'Статус': part.stock === 0 ? 'Нет' : part.stock <= part.min_stock ? 'Низкий' : 'OK',
-                'Цена закупки (¥)': part.price_cny,
-                'Цена продажи (₽)': part.price,
-                'Поставщик': part.supplier,
-                'Срок поставки (дней)': part.lead_time
-            }));
+            // Sheet 1: Parts Inventory
+            const partsData = [
+                ['Артикул', 'Наименование', 'Тип', 'Модель', 'Категория', 'На складе', 'Мин. запас', 'Статус', 'Цена (₽)', 'Поставщик']
+            ];
 
-            const inventoryWS = XLSX.utils.json_to_sheet(inventoryData);
-            XLSX.utils.book_append_sheet(workbook, inventoryWS, 'Запчасти');
+            store.parts.forEach(part => {
+                const status = part.stock === 0 ? 'Нет' : part.stock <= part.min_stock ? 'Низкий' : 'OK';
+                partsData.push([
+                    part.sku,
+                    part.name,
+                    part.type === 'vibro' ? 'Вибропресс' : 'Смеситель',
+                    part.model,
+                    part.category,
+                    part.stock,
+                    part.min_stock,
+                    status,
+                    part.price,
+                    part.supplier
+                ]);
+            });
 
-            // Sheet 2: Forms Report with sales data
+            const partsWS = XLSX.utils.aoa_to_sheet(partsData);
+            XLSX.utils.book_append_sheet(workbook, partsWS, 'Запчасти');
+
+            // Sheet 2: Forms with sales data
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-            const formsData = store.forms.map(form => {
+            const formsData = [
+                ['Код формы', 'Тип изделия', 'Размеры (мм)', 'В наличии', 'Продано (30 дней)', 'Цена (₽)', 'Состояние']
+            ];
+
+            store.forms.forEach(form => {
                 const soldCount = store.orders.filter(o => {
                     const orderDate = new Date(o.date);
                     return o.form_id === form.id && orderDate >= thirtyDaysAgo;
                 }).reduce((sum, o) => sum + (o.quantity || 0), 0);
 
-                return {
-                    'Код формы': form.code,
-                    'Тип изделия': form.product_type,
-                    'Размеры (мм)': `${form.length}×${form.width}×${form.height}`,
-                    'Вес (кг)': form.weight,
-                    'В наличии': form.quantity,
-                    'Продано (30 дней)': soldCount,
-                    'Цена (₽)': form.price,
-                    'Состояние': form.condition === 'new' ? 'Новая' : form.condition === 'used' ? 'Б/у' : 'Восстановленная',
-                    'Материал': form.material
-                };
+                const condition = form.condition === 'new' ? 'Новая' : form.condition === 'used' ? 'Б/у' : 'Восстановленная';
+                const sizes = `${form.length}×${form.width}×${form.height}`;
+
+                formsData.push([
+                    form.code,
+                    form.product_type,
+                    sizes,
+                    form.quantity,
+                    soldCount,
+                    form.price,
+                    condition
+                ]);
             });
 
-            const formsWS = XLSX.utils.json_to_sheet(formsData);
+            const formsWS = XLSX.utils.aoa_to_sheet(formsData);
             XLSX.utils.book_append_sheet(workbook, formsWS, 'Пресс-формы');
 
             // Sheet 3: Summary
@@ -1610,55 +1699,64 @@
             const criticalItems = store.parts.filter(p => p.stock <= p.min_stock).length;
 
             const summaryData = [
-                { 'Показатель': 'Дата отчёта', 'Значение': new Date().toLocaleDateString('ru-RU') },
-                { 'Показатель': 'Всего позиций запчастей', 'Значение': store.parts.length },
-                { 'Показатель': 'Критический запас', 'Значение': criticalItems },
-                { 'Показатель': 'Стоимость запчастей на складе (₽)', 'Значение': totalInventoryValue },
-                { 'Показатель': 'Всего пресс-форм', 'Значение': store.forms.length },
-                { 'Показатель': 'Стоимость форм на складе (₽)', 'Значение': totalFormsValue },
-                { 'Показатель': 'Общая стоимость склада (₽)', 'Значение': totalInventoryValue + totalFormsValue },
-                { 'Показатель': 'Активные заказы', 'Значение': store.orders.filter(o => o.status !== 'delivered').length },
-                { 'Показатель': 'Всего заказов', 'Значение': store.orders.length }
+                ['Показатель', 'Значение'],
+                ['Дата отчёта', new Date().toLocaleDateString('ru-RU')],
+                ['Всего позиций запчастей', store.parts.length],
+                ['Критический запас', criticalItems],
+                ['Стоимость запчастей на складе (₽)', totalInventoryValue],
+                ['Всего пресс-форм', store.forms.length],
+                ['Стоимость форм на складе (₽)', totalFormsValue],
+                ['Общая стоимость склада (₽)', totalInventoryValue + totalFormsValue],
+                ['Активные заказы', store.orders.filter(o => o.status !== 'delivered').length],
+                ['Всего заказов', store.orders.length]
             ];
 
-            const summaryWS = XLSX.utils.json_to_sheet(summaryData);
+            const summaryWS = XLSX.utils.aoa_to_sheet(summaryData);
             XLSX.utils.book_append_sheet(workbook, summaryWS, 'Сводка');
 
-            // Generate filename with current date
-            const dateStr = new Date().toISOString().split('T')[0];
+            // Download file
             XLSX.writeFile(workbook, `Qunfeng_Отчет_Склад_${dateStr}.xlsx`);
         }
 
+        // Export only forms table
         function exportFormsReport() {
             const thirtyDaysAgo = new Date();
             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-            const formsData = store.forms.map(form => {
+            const formsData = [
+                ['Код формы', 'Тип изделия', 'Размеры (мм)', 'В наличии', 'Продано (30 дней)', 'Цена (₽)', 'Стоимость остатка (₽)', 'Состояние']
+            ];
+
+            store.forms.forEach(form => {
                 const soldCount = store.orders.filter(o => {
                     const orderDate = new Date(o.date);
                     return o.form_id === form.id && orderDate >= thirtyDaysAgo;
                 }).reduce((sum, o) => sum + (o.quantity || 0), 0);
 
-                return {
-                    'Код формы': form.code,
-                    'Тип изделия': form.product_type,
-                    'Размеры (мм)': `${form.length}×${form.width}×${form.height}`,
-                    'Вес (кг)': form.weight,
-                    'В наличии': form.quantity,
-                    'Продано (30 дней)': soldCount,
-                    'Цена (₽)': form.price,
-                    'Стоимость остатка (₽)': form.price * form.quantity,
-                    'Состояние': form.condition === 'new' ? 'Новая' : form.condition === 'used' ? 'Б/у' : 'Восстановленная'
-                };
+                const condition = form.condition === 'new' ? 'Новая' : form.condition === 'used' ? 'Б/у' : 'Восстановленная';
+                const sizes = `${form.length}×${form.width}×${form.height}`;
+
+                formsData.push([
+                    form.code,
+                    form.product_type,
+                    sizes,
+                    form.quantity,
+                    soldCount,
+                    form.price,
+                    form.price * form.quantity,
+                    condition
+                ]);
             });
 
             const workbook = XLSX.utils.book_new();
-            const ws = XLSX.utils.json_to_sheet(formsData);
+            const ws = XLSX.utils.aoa_to_sheet(formsData);
             XLSX.utils.book_append_sheet(workbook, ws, 'Пресс-формы');
 
             const dateStr = new Date().toISOString().split('T')[0];
             XLSX.writeFile(workbook, `Qunfeng_Формы_${dateStr}.xlsx`);
         }
+
+        
 
         // Utils
         function filterInventory(type) {
