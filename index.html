@@ -867,16 +867,28 @@
 
         function openModal(id) {
             const modal = document.getElementById(id);
-            modal.classList.remove('hidden');
-            modal.style.display = 'flex';
-            document.body.style.overflow = 'hidden';
+            if (modal) {
+                // Use replace to swap hidden with flex
+                if (modal.classList.contains('hidden')) {
+                    modal.classList.replace('hidden', 'flex');
+                } else {
+                    modal.classList.add('flex');
+                }
+                document.body.style.overflow = 'hidden';
+            }
         }
 
         function closeModal(id) {
             const modal = document.getElementById(id);
-            modal.classList.add('hidden');
-            modal.style.display = 'none';
-            document.body.style.overflow = '';
+            if (modal) {
+                // Use replace to swap flex with hidden
+                if (modal.classList.contains('flex')) {
+                    modal.classList.replace('flex', 'hidden');
+                } else {
+                    modal.classList.add('hidden');
+                }
+                document.body.style.overflow = '';
+            }
         }
 
         function updateModelSelect() {
@@ -1331,25 +1343,40 @@
         }
 
         function openOrderModal(partId) {
+            // Populate selects first
             populateSelects();
-            // Reset form
-            document.getElementById('order-type-select').value = 'part';
-            document.getElementById('order-quantity').value = '1';
-            document.getElementById('order-total').textContent = '₽0';
 
-            // Reset part and form containers visibility
-            document.getElementById('part-select-container').classList.remove('hidden');
-            document.getElementById('form-select-container').classList.add('hidden');
-            document.getElementById('part-info').classList.remove('hidden');
-            document.getElementById('form-info').classList.add('hidden');
+            // Get all form elements with null checks
+            const typeSelect = document.getElementById('order-type-select');
+            const qtyInput = document.getElementById('order-quantity');
+            const totalDiv = document.getElementById('order-total');
+            const partContainer = document.getElementById('part-select-container');
+            const formContainer = document.getElementById('form-select-container');
+            const partInfo = document.getElementById('part-info');
+            const formInfo = document.getElementById('form-info');
+            const partSelect = document.getElementById('order-part-select');
 
+            // Reset form values
+            if (typeSelect) typeSelect.value = 'part';
+            if (qtyInput) qtyInput.value = '1';
+            if (totalDiv) totalDiv.textContent = '₽0';
+
+            // Reset visibility - show part, hide form
+            if (partContainer) partContainer.classList.remove('hidden');
+            if (formContainer) formContainer.classList.add('hidden');
+            if (partInfo) partInfo.classList.remove('hidden');
+            if (formInfo) formInfo.classList.add('hidden');
+
+            // Update order type to set correct state
             updateOrderType();
-            if (partId) {
-                document.getElementById('order-part-select').value = partId;
+
+            // If partId provided, select it
+            if (partId && partSelect) {
+                partSelect.value = partId;
                 updateOrderPart();
             }
 
-            // Actually open the modal
+            // CRITICAL: Actually open the modal
             openModal('order-modal');
             openModal('order-modal');
         }
